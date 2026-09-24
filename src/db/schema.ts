@@ -77,6 +77,14 @@ export const clients = sqliteTable("clients", {
   // ga4PropertyId: numeric e.g. "123456789"
   gscProperty: text("gsc_property"),
   ga4PropertyId: text("ga4_property_id"),
+  /**
+   * Extra brand terms (JSON string[]) used to classify tracked queries as
+   * branded vs non-branded for AI visibility — Chinese product names and
+   * sub-brand words ("焚诀", "天衍") that appear in neither the client
+   * name nor the domain. Kept as data, not code, so adding a term never
+   * needs a deploy.
+   */
+  brandAliases: text("brand_aliases", { mode: "json" }).$type<string[]>(),
   // WordPress bridge credentials — set when the SEO Tool Bridge plugin
   // is installed on the client's WordPress site. Enables one-click
   // application of SEO fixes (titles, meta, schema, alt text).

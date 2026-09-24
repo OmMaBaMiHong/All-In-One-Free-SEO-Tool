@@ -162,6 +162,15 @@ async function getBrowser(): Promise<Browser> {
     } else {
       const opts: LaunchOptions = {
         headless: true,
+        // Chromium ignores context-level proxies unless the browser itself
+        // is launched with this placeholder (documented Playwright rule).
+        // Without it the per-context `proxy` in newPageContext below is
+        // silently dropped — every "proxied" scrape went out direct, which
+        // on a network where google.com needs a proxy reads as "Google
+        // blocked the scan" and `ERR_CONNECTION_CLOSED`, not as a proxy
+        // bug. Local chromium only; the remote WS browser handles its own
+        // launch flags.
+        proxy: { server: "per-context" },
         args: [
           "--no-sandbox",
           "--disable-blink-features=AutomationControlled",

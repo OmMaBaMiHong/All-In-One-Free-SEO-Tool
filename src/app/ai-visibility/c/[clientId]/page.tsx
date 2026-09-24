@@ -15,6 +15,12 @@ import {
 } from "@/app/ai-visibility/check-buttons";
 import { BrowserModeAiToggle } from "@/app/ai-visibility/browser-mode-toggle";
 import { clientScope } from "@/lib/client-scope";
+import {
+  summarizeVisibility,
+  type VisibilityCheckRow,
+} from "@/lib/geo-metrics/metrics";
+import { isBrandedQuery } from "@/lib/geo-metrics/brand-tags";
+import { formatShare } from "@/lib/geo-metrics/stats";
 
 const providerLabel: Record<string, string> = {
   openai: "ChatGPT",
@@ -81,6 +87,28 @@ export default async function PerClientAIVisibilityPage({
 
   const totalMentions = checks.filter((c) => c.mentionsDomain).length;
 
+  // --- GEO metrics summary (seeded-bootstrap kernel, live answers only) ---
+  const brandIdentity = {
+    clientName: client.name,
+    domain: client.url,
+    aliases: client.brandAliases,
+  };
+  const queryById = new Map(tracked.map((k) => [k.id, k.query]));
+  const metricRows: VisibilityCheckRow[] = checks.map((c) => ({
+    query: queryById.get(c.keywordId) ?? "",
+    provider: c.provider,
+    grounding: c.grounding,
+    mentionsDomain: c.mentionsDomain,
+    citationsForDomain: c.citationsForDomain,
+    citationsCount: Array.isArray(c.citations) ? c.citations.length : 0,
+    sentiment: c.sentiment,
+    error: c.error,
+  }));
+  const summary =
+    checks.length > 0
+      ? summarizeVisibility(metricRows, brandIdentity, `client-${client.id}`)
+      : null;
+
   const browserScrapedEnabled =
     (await getSetting<boolean>("ai_visibility.browser_scraped_enabled")) ??
     false;
@@ -134,6 +162,116 @@ export default async function PerClientAIVisibilityPage({
           </div>
         }
       />
+
+      {summary && (
+        <section className="glass-apple rounded-2xl p-5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
+              Visibility summary
+            </h2>
+            {/* The CI widens honestly on thin data; say so instead of
+                letting a ±40pp number parade as settled. */}
+            {summary.live.checks > 0 && summary.live.checks < 10 && (
+              <span className="text-[11px] text-amber-300/90">
+                low sample ({summary.live.checks} live checks) — run more
+                checks before trusting the interval
+              </span>
+            )}
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                Mention rate · live answers
+              </div>
+              <div className="mt-1 text-2xl font-semibold">
+                {formatShare(summary.live.mentionRate)}
+              </div>
+              <div className="mt-1 text-[11px] text-muted-foreground">
+                {summary.live.mentions}/{summary.live.checks} answers ·{" "}
+                {summary.memory.checks} memory answers excluded
+                {summary.memory.mentions > 0 &&
+                  ` (${summary.memory.mentions} mention them)`}
+              </div>
+            </div>
+            <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                Citation share
+              </div>
+              <div className="mt-1 text-2xl font-semibold">
+                {summary.live.citationShare === null
+                  ? "—"
+                  : `${Math.round(summary.live.citationShare * 100)}%`}
+              </div>
+              <div className="mt-1 text-[11px] text-muted-foreground">
+                client URLs ÷ all URLs cited · rate{" "}
+                {formatShare(summary.live.citationRate)}
+              </div>
+            </div>
+            <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                Branded queries
+              </div>
+              <div className="mt-1 text-2xl font-semibold">
+                {formatShare(summary.branded.mentionRate)}
+              </div>
+              <div className="mt-1 text-[11px] text-muted-foreground">
+                do AIs know the name? · {summary.branded.checks} checks
+              </div>
+            </div>
+            <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                Non-branded queries
+              </div>
+              <div className="mt-1 text-2xl font-semibold">
+                {formatShare(summary.nonBranded.mentionRate)}
+              </div>
+              <div className="mt-1 text-[11px] text-muted-foreground">
+                do AIs recommend us unprompted? ·{" "}
+                {summary.nonBranded.checks} checks
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px]">
+            {summary.perProvider
+              .filter((p) => p.slice.checks > 0)
+              .map((p) => (
+                <span
+                  key={p.provider}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-muted-foreground ring-1 ring-inset ring-white/10"
+                >
+                  {providerLabel[p.provider] ?? p.provider}
+                  <span className="font-medium text-foreground">
+                    {formatShare(p.slice.mentionRate)}
+                  </span>
+                </span>
+              ))}
+            {summary.live.mentions > 0 && (
+              <span className="text-muted-foreground">
+                sentiment:{" "}
+                {(
+                  [
+                    ["positive", "text-emerald-300"],
+                    ["neutral", "text-amber-300"],
+                    ["negative", "text-rose-300"],
+                    ["mixed", "text-violet-300"],
+                  ] as const
+                )
+                  .filter(([k]) => summary!.live.sentiment[k] > 0)
+                  .map(
+                    ([k, cls]) =>
+                      `${summary!.live.sentiment[k]} ${k}`,
+                  )
+                  .join(" · ")}
+              </span>
+            )}
+            {summary.failed > 0 && (
+              <span className="text-muted-foreground/70">
+                {summary.failed} failed checks excluded
+              </span>
+            )}
+          </div>
+        </section>
+      )}
 
       {tracked.length === 0 ? (
         <div className="glass-apple relative overflow-hidden rounded-2xl px-6 py-12 text-center text-sm text-muted-foreground">
@@ -206,7 +344,17 @@ export default async function PerClientAIVisibilityPage({
                 };
                 return (
                   <tr key={k.id} className="hover:bg-white/[0.03]">
-                    <td className="px-5 py-3 font-medium">{k.query}</td>
+                    <td className="px-5 py-3 font-medium">
+                      {k.query}
+                      {isBrandedQuery(k.query, brandIdentity) && (
+                        <span
+                          className="ml-2 inline-flex rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30"
+                          title="Branded query — measures whether AIs have heard of you. Queries without the chip measure whether AIs recommend you unprompted."
+                        >
+                          branded
+                        </span>
+                      )}
+                    </td>
                     <td className="px-3 py-3">
                       {mentions > 0 ? (
                         <span className="inline-flex rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
