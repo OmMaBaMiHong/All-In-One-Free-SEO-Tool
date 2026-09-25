@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/i18n/zh";
 
 import { useState, useTransition } from "react";
 import { Globe, Loader2 } from "lucide-react";
@@ -45,7 +46,7 @@ export function BrowserModeAiToggle({ initial }: { initial: boolean }) {
         <Globe className="size-3" />
       )}
       <span>
-        Also scan Google AI Mode + Copilot
+        {t("同时扫描 Google AI Mode + Copilot")}
       </span>
       <span
         className={`ml-0.5 inline-block size-2 rounded-full ${

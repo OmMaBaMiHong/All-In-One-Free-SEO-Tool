@@ -6,6 +6,7 @@ import { useState } from "react";
 import { motion, LayoutGroup } from "motion/react";
 import { Search, PanelLeftClose, PanelLeftOpen, ChevronDown, ChevronRight } from "lucide-react";
 import { NAV_GROUPS, type NavGroup, type NavItem } from "./nav-items";
+import { t } from "@/lib/i18n/zh";
 import { ToolDot, ToolDotLegend } from "@/components/tool-dot";
 import { useStoredState } from "@/components/use-stored-state";
 
@@ -362,7 +363,7 @@ export function Sidebar({
                         className={`size-1.5 shrink-0 rounded-full ${accent.dot}`}
                       />
                     )}
-                    {group.title}
+                    {t(group.title)}
                   </span>
                   {isOpen ? (
                     <ChevronDown className="size-3.5 opacity-60" />
@@ -373,7 +374,7 @@ export function Sidebar({
               )}
               {!collapsed && group.pinned && (
                 <div className="px-2 py-1.5 text-[13px] font-semibold tracking-tight text-sidebar-foreground/75">
-                  {group.title}
+                  {t(group.title)}
                 </div>
               )}
               {collapsed && (
@@ -396,7 +397,7 @@ export function Sidebar({
                           {...(external
                             ? { target: "_blank", rel: "noreferrer noopener" }
                             : {})}
-                          title={collapsed ? label : undefined}
+                          title={collapsed ? t(label) : undefined}
                           aria-label={collapsed ? label : undefined}
                           className={
                             collapsed
@@ -436,7 +437,7 @@ export function Sidebar({
                           />
                           {!collapsed && (
                             <span className="relative z-10 flex-1 truncate">
-                              {label}
+                              {t(label)}
                             </span>
                           )}
                           {/* One dot, one rule — lib/tool-readiness.ts,

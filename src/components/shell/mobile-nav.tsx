@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, Search, X } from "lucide-react";
 import { NAV_GROUPS, type NavItem } from "./nav-items";
+import { t } from "@/lib/i18n/zh";
 import { capabilityOf } from "@/lib/tool-capabilities";
 
 /**
@@ -125,7 +126,7 @@ export function MobileNav({
               {groups.map((group) => (
                 <div key={group.id} className="mb-1">
                   <div className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground/70">
-                    {group.title}
+                    {t(group.title)}
                   </div>
                   <ul>
                     {group.items.map(({ href, label, icon: Icon }: NavItem) => {
@@ -147,7 +148,7 @@ export function MobileNav({
                             <Icon
                               className={`size-4 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`}
                             />
-                            <span className="flex-1 truncate">{label}</span>
+                            <span className="flex-1 truncate">{t(label)}</span>
                             {/* Same rule as the desktop sidebar: tag only
                                 what is certainly free. */}
                             {badge === 0 &&

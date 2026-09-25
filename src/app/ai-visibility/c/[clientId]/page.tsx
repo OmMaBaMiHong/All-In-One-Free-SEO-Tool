@@ -21,6 +21,7 @@ import {
 } from "@/lib/geo-metrics/metrics";
 import { isBrandedQuery } from "@/lib/geo-metrics/brand-tags";
 import { formatShare } from "@/lib/geo-metrics/stats";
+import { t } from "@/lib/i18n/zh";
 import { mrr } from "@/lib/geo-metrics/rank";
 import { db as appDb } from "@/db/client";
 import { geoVisibilitySnapshots } from "@/db/schema";
@@ -139,13 +140,13 @@ export default async function PerClientAIVisibilityPage({
         }}
         allClients={allClients}
         basePath="/ai-visibility/c"
-        toolLabel="AI visibility"
+        toolLabel={t("AI visibility")}
         icon={Sparkles}
       />
 
       <PageHeader
-        title={`AI visibility · ${client.name}`}
-        description="Track whether AI assistants cite this client's domain when answering tracked queries. Sentiment column shows the tone AI providers use when they DO mention the brand."
+        title={`${t("AI visibility")} · ${client.name}`}
+        description="追踪各大 AI 在回答追踪问题时是否引用该客户的域名。情感列显示 AI 提及品牌时的语气倾向。"
         icon={Sparkles}
         accent="rose"
         actions={
@@ -182,7 +183,7 @@ export default async function PerClientAIVisibilityPage({
         <section className="glass-apple rounded-2xl p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">
-              Visibility summary
+              {t("Visibility summary")}
             </h2>
             {/* The CI widens honestly on thin data; say so instead of
                 letting a ±40pp number parade as settled. */}
@@ -331,16 +332,16 @@ export default async function PerClientAIVisibilityPage({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 text-left font-medium">Query</th>
-                <th className="px-3 py-3 text-left font-medium">Mentions</th>
+                <th className="px-5 py-3 text-left font-medium">{t("Query")}</th>
+                <th className="px-3 py-3 text-left font-medium">{t("Mentions")}</th>
                 <th
                   className="px-3 py-3 text-left font-medium"
-                  title="Average sentiment of the mentions across AI providers. Positive = brand described favourably; Negative = described unfavourably; Mixed = both."
+                  title="各 AI 提及品牌时的平均情感。正面 = 好评;负面 = 差评;混合 = 两者都有。"
                 >
-                  Sentiment
+                  {t("Sentiment")}
                 </th>
-                <th className="px-3 py-3 text-left font-medium">Latest checks</th>
-                <th className="px-3 py-3 text-right font-medium">Actions</th>
+                <th className="px-3 py-3 text-left font-medium">{t("Latest checks")}</th>
+                <th className="px-3 py-3 text-right font-medium">{t("Actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -391,7 +392,7 @@ export default async function PerClientAIVisibilityPage({
                       {isBrandedQuery(k.query, brandIdentity) && (
                         <span
                           className="ml-2 inline-flex rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30"
-                          title="Branded query — measures whether AIs have heard of you. Queries without the chip measure whether AIs recommend you unprompted."
+                          title="品牌词提问——测 AI 是否知道我们。没徽章的问题测 AI 是否会主动推荐我们。"
                         >
                           branded
                         </span>

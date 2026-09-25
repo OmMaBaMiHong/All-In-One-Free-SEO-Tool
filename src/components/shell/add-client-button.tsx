@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/i18n/zh";
 
 import { Plus } from "lucide-react";
 import { useQuickAddClient } from "./quick-add-client-dialog";
@@ -11,10 +12,10 @@ export function AddClientButton() {
       type="button"
       onClick={open}
       className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-violet-500/15 px-3 text-[13px] font-medium text-violet-200 ring-1 ring-inset ring-violet-500/30 transition-colors hover:bg-violet-500/25 hover:text-white"
-      title="Add client (just paste a URL — we auto-fill the rest)"
+      title={t("Add client")}
     >
       <Plus className="size-3.5" />
-      Add client
+      {t("Add client")}
     </button>
   );
 }

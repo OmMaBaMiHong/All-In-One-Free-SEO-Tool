@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/i18n/zh";
 
 import { useState, useTransition } from "react";
 import { Loader2, Sparkles, RefreshCw } from "lucide-react";
@@ -30,7 +31,7 @@ export function CheckOneButton({ keywordId }: { keywordId: number }) {
         ) : (
           <Sparkles className="size-3" />
         )}
-        {pending ? "…" : "Check AI"}
+        {pending ? "…" : t("Check AI")}
       </Button>
       {error && (
         <span
@@ -58,7 +59,7 @@ export function CheckAllButton() {
       ) : (
         <RefreshCw className="size-4" />
       )}
-      {pending ? "Checking all keywords…" : "Check all keywords"}
+      {pending ? "正在检测全部关键词…" : t("Check all keywords")}
     </Button>
   );
 }

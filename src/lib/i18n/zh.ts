@@ -1,0 +1,145 @@
+/**
+ * zh-CN dictionary — keyed by the ENGLISH string as it appears in the UI.
+ *
+ * Design decision (deliberate): no i18n framework, no locale files per
+ * route. This app is a 226-route fork of an English OSS project; the
+ * owner is a Chinese-speaking user who wants the chrome in Chinese
+ * today, not a translation-management system. A flat EN→ZH map with
+ * graceful fallback (missing key renders the English original) covers
+ * the high-traffic surfaces now and grows incrementally — new keys can
+ * be added one by one without touching any other file.
+ *
+ * Convention: keys are exact UI strings (case-sensitive), values are the
+ * Chinese renderings. Data-bearing strings (client names, keyword text)
+ * never pass through t().
+ */
+
+export const ZH: Record<string, string> = {
+  // ── nav groups ──
+  Essentials: "核心",
+  Everyday: "日常",
+  Content: "内容",
+  "Keywords & ranks": "关键词与排名",
+  "Paid ads": "付费广告",
+  "Backlinks & outreach": "外链与外联",
+  "Local SEO": "本地 SEO",
+  "Competitors & brand": "竞对与品牌",
+  "AI visibility": "AI 可见性",
+  "Monitoring + history": "监控与历史",
+  Imports: "导入",
+  Deliverables: "交付物",
+  Account: "账户",
+
+  // ── nav items ──
+  Dashboard: "仪表板",
+  "Get started": "开始使用",
+  Clients: "客户",
+  "SEO chat": "SEO 聊天",
+  Audits: "审计",
+  Tasks: "任务",
+  "All tools": "所有工具",
+  Reports: "报告",
+  "Morning briefing": "晨报",
+  "Weekly digest": "周报",
+  "Instant audit": "即时审计",
+  Leads: "线索",
+  "AI agent": "AI 代理",
+  Autopilot: "自动驾驶",
+  Capacity: "用量",
+  "Activity log": "活动日志",
+  "Writing → BlogPilot": "写作 → BlogPilot",
+  "Title A/B tests": "标题 A/B 测试",
+  "Meta rewrite batch": "Meta 批量改写",
+  "Tracked keywords": "追踪关键词",
+  Cannibalization: "关键词蚕食",
+  "Core Web Vitals": "核心网页指标",
+  "SERP scans archive": "SERP 扫描存档",
+  "Ad Funnel Architect ⭐": "广告漏斗架构师 ⭐",
+  "Branded vs non-branded": "品牌词 vs 非品牌词",
+  Backlinks: "外链",
+  "Link building": "链接建设",
+  Outreach: "外联",
+  "Broken links": "死链",
+  "Google Business Profile": "Google 商家资料",
+  Citations: "目录引用",
+  "Local rank tracker": "本地排名追踪",
+  "Local rank heatmap": "本地排名热力图",
+  Competitors: "竞争对手",
+  "Brand visibility": "品牌可见性",
+  "Site compare": "站点对比",
+  "AI visibility tracker": "AI 可见性追踪",
+  "AI chat history": "AI 聊天历史",
+  "Page monitor": "页面监控",
+  Snapshots: "快照",
+  "Tool run history": "工具运行历史",
+  "Algorithm updates": "算法更新",
+  "SEO news": "SEO 资讯",
+  "Import (all sources)": "导入(全部来源)",
+  "Generate all reports": "生成全部报告",
+  "Report archive": "报告存档",
+  Automations: "自动化",
+  Proposals: "方案书",
+  Invoices: "发票",
+  "Connect accounts": "连接账号",
+  Settings: "设置",
+  Docs: "文档",
+  Learn: "学习",
+  "Knowledge hub": "知识库",
+
+  // ── common chrome ──
+  "Add client": "添加客户",
+  "Search clients, keywords, tasks…": "搜索客户、关键词、任务…",
+  "Collapse sidebar": "收起侧栏",
+  "Expand sidebar": "展开侧栏",
+  "Hide this suggestion": "隐藏此建议",
+  Notifications: "通知",
+  Guided: "引导",
+  Pro: "专业",
+  Profile: "个人",
+
+  // ── AI visibility page ──
+  "AI visibility · da li": "AI 可见性",
+  "← All clients": "← 返回客户列表",
+  "AI VISIBILITY": "AI 可见性",
+  "Visibility summary": "可见性汇总",
+  "Mention rate · live answers": "提及率 · 联网回答",
+  "Citation share": "引用份额",
+  "Branded queries": "品牌词提问",
+  "Non-branded queries": "非品牌词提问",
+  "do AIs know the name?": "AI 知道我们吗?",
+  "do AIs recommend us unprompted?": "AI 会主动推荐我们吗?",
+  Query: "问题",
+  Mentions: "提及",
+  Sentiment: "情感",
+  "Latest checks": "最近检测",
+  Actions: "操作",
+  "Check AI": "检测 AI",
+  "Check all keywords": "检测全部关键词",
+  "No checks yet": "尚未检测",
+  "No mentions yet": "还没有提及记录",
+  "tracked keywords": "个追踪关键词",
+  positive: "正面",
+  negative: "负面",
+  neutral: "中性",
+  mixed: "混合",
+  branded: "品牌词",
+  "client URLs ÷ all URLs cited": "我们的 URL ÷ 全部被引 URL",
+  "low sample": "样本不足",
+  "memory answers excluded": "条纯记忆回答已排除",
+  "failed checks excluded": "条失败检测已排除",
+
+  // ── GEO tools (ours) ──
+  "GEO rewrite workbench ⭐": "GEO 改写工作台 ⭐",
+  "GEO composite score ⭐": "GEO 综合评分 ⭐",
+  "GEO SWOT": "GEO 态势分析",
+  "中国市场 (cn)": "中国市场 (cn)",
+  "全球市场 (global)": "全球市场 (global)",
+  "改写指令包(复制给任意 LLM 执行)": "改写指令包(复制给任意 LLM 执行)",
+  "复制全文": "复制全文",
+  "复制改写稿": "复制改写稿",
+};
+
+/** Translate an English UI string to Chinese; missing keys fall back to EN. */
+export function t(en: string): string {
+  return ZH[en] ?? en;
+}
