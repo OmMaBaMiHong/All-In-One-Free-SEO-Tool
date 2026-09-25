@@ -3,10 +3,10 @@ export const dynamic = "force-dynamic";
 import { ExternalLink, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { getGeoFlowStatus } from "./actions";
-import { GenerationPanel, KnowledgeManager, PublishButton } from "./client";
+import { GenerationPanel, KnowledgeManager, PublishButton, DistributionPanel } from "./client";
 import { listKnowledgeBases } from "@/lib/knowledge/service";
 import { db } from "@/db/client";
-import { cfTitleLibraries, cfArticles } from "@/db/schema";
+import { cfTitleLibraries, cfArticles, cfChannels } from "@/db/schema";
 import { desc, sql } from "drizzle-orm";
 
 /**
@@ -74,6 +74,11 @@ export default async function ContentFactoryPage() {
     .from(cfArticles)
     .orderBy(desc(cfArticles.id))
     .limit(10);
+  const channels = await db
+    .select({ id: cfChannels.id, name: cfChannels.name, region: cfChannels.region, seoValue: cfChannels.seoValue, geoValue: cfChannels.geoValue })
+    .from(cfChannels)
+    .orderBy(desc(cfChannels.seoValue), desc(cfChannels.geoValue));
+  const publishedArticles = articles.filter((a) => a.status === "published");
   const totalChunks = knowledgeBases.reduce((s, kb) => s + kb.chunkCount, 0);
 
   return (
@@ -196,6 +201,16 @@ export default async function ContentFactoryPage() {
           </div>
         )}
       </section>
+
+      {/* V2 多站分发 */}
+      {publishedArticles.length > 0 && channels.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            多站分发(已发布文章 → 平台化改编 → 登记外链)
+          </h2>
+          <DistributionPanel publishedArticles={publishedArticles} channels={channels} />
+        </section>
+      )}
 
       {/* 六环操作地图 */}
       <section className="space-y-3">

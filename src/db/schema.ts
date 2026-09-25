@@ -2659,3 +2659,21 @@ export const cfChannels = sqliteTable("cf_channels", {
     .notNull()
     .default(sql`(unixepoch())`),
 });
+
+
+export const cfDistributions = sqliteTable("cf_distributions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  articleId: integer("article_id")
+    .notNull()
+    .references(() => cfArticles.id, { onDelete: "cascade" }),
+  channelId: integer("channel_id")
+    .notNull()
+    .references(() => cfChannels.id, { onDelete: "cascade" }),
+  status: text("status").notNull().default("adapted"),
+  adaptedMd: text("adapted_md").notNull().default(""),
+  publishedUrl: text("published_url"),
+  adaptedAt: integer("adapted_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  publishedAt: integer("published_at", { mode: "timestamp" }),
+});

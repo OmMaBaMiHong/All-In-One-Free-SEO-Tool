@@ -41,10 +41,11 @@ export async function getGeoFlowStatus(): Promise<GeoFlowStatus> {
 
 // ── 统一知识库管理(SEO/GEO 共用)────────────────────────────────────
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+
 import { db } from "@/db/client";
 import { cfKnowledgeBases, cfKnowledgeChunks } from "@/db/schema";
 import { ingestKnowledge, recallKnowledge } from "@/lib/knowledge/service";
+import { asc, eq, sql } from "drizzle-orm";
 import { callAI } from "@/lib/ai-call";
 import { computeQualityGate } from "@/lib/knowledge/quality-gate";
 
@@ -85,7 +86,7 @@ import {
   buildGenerationMessages,
   pickUnusedTitles,
 } from "@/lib/knowledge/generation";
-import { asc } from "drizzle-orm";
+
 
 export async function generateArticleAction(
   _prev: {
@@ -253,4 +254,112 @@ export async function publishArticleAction(
 
   revalidatePath("/content-factory");
   return { ok: true, message: `已发布 ${rendered.url}${pushNote}`, url: rendered.url };
+}
+
+
+// ── V2 多站分发:平台化改编 + 发布登记 + 外链联动 ────────────────────
+import {
+  cfDistributions,
+  cfChannels,
+  backlinks,
+} from "@/db/schema";
+import {
+  buildAdaptationMessages,
+  parseAdaptation,
+} from "@/lib/knowledge/distribution";
+
+export async function adaptForChannelAction(
+  _prev: { ok: boolean; message: string; distributionId?: number } | null,
+  formData: FormData,
+): Promise<{ ok: boolean; message: string; distributionId?: number }> {
+  const articleId = Number(formData.get("articleId"));
+  const channelId = Number(formData.get("channelId"));
+  if (!Number.isFinite(articleId) || !Number.isFinite(channelId)) {
+    return { ok: false, message: "参数错误" };
+  }
+  const [article] = await db.select().from(cfArticles).where(eq(cfArticles.id, articleId)).limit(1);
+  if (!article || article.status !== "published") {
+    return { ok: false, message: "文章需先发布到 skoob.cc,才能改编分发" };
+  }
+  const [channel] = await db.select().from(cfChannels).where(eq(cfChannels.id, channelId)).limit(1);
+  if (!channel) return { ok: false, message: "渠道不存在" };
+
+  const recalled = await recallKnowledge(article.title, 3).catch(() => []);
+  const sourceUrl = blogUrl(article.id);
+  const { system, user } = buildAdaptationMessages({
+    articleTitle: article.title,
+    articleMarkdown: article.contentMd,
+    sourceUrl,
+    channel: {
+      name: channel.name,
+      platform_type: channel.platformType,
+      link_form: channel.linkForm,
+      style: channel.style,
+    },
+    knowledge: recalled.map((r) => r.content),
+  });
+
+  const raw = await callAI({
+    system,
+    user,
+    maxTokens: 6000,
+    temperature: 0.4,
+    timeoutMs: 240_000,
+    ignoreCreditSaver: true,
+  });
+  const parsed = parseAdaptation(raw);
+  if (!parsed.ok) return { ok: false, message: `改编失败: ${parsed.reason}` };
+
+  const [dist] = await db
+    .insert(cfDistributions)
+    .values({ articleId, channelId, status: "adapted", adaptedMd: parsed.markdown })
+    .returning();
+
+  revalidatePath("/content-factory");
+  return { ok: true, message: `已按「${channel.name}」风格改编(${Math.round(parsed.markdown.length / 2)} 字),待人工发布到平台后登记 URL`, distributionId: dist.id };
+}
+
+export async function markDistributedAction(
+  _prev: { ok: boolean; message: string } | null,
+  formData: FormData,
+): Promise<{ ok: boolean; message: string }> {
+  const distributionId = Number(formData.get("distributionId"));
+  const publishedUrl = String(formData.get("publishedUrl") ?? "").trim();
+  if (!Number.isFinite(distributionId)) return { ok: false, message: "参数错误" };
+  if (!/^https?:\/\//.test(publishedUrl)) return { ok: false, message: "请填平台发布后的真实 URL" };
+
+  const [dist] = await db.select().from(cfDistributions).where(eq(cfDistributions.id, distributionId)).limit(1);
+  if (!dist) return { ok: false, message: "分发记录不存在" };
+  const [channel] = await db.select().from(cfChannels).where(eq(cfChannels.id, dist.channelId)).limit(1);
+  const [article] = await db.select().from(cfArticles).where(eq(cfArticles.id, dist.articleId)).limit(1);
+
+  await db
+    .update(cfDistributions)
+    .set({ status: "published", publishedUrl, publishedAt: new Date() })
+    .where(eq(cfDistributions.id, distributionId));
+
+  // 外链联动:平台链接多为 nofollow,但"平台已发布"本身就是需要追踪的
+  // 外链/信源资产——登记进 backlinks 表,排名页与外链页共享一份事实。
+  if (channel && article) {
+    const { clients } = await import("@/db/schema");
+    const [owner] = await db
+      .select({ id: clients.id })
+      .from(clients)
+      .where(sql`${clients.url} LIKE '%skoob.cc%'`)
+      .limit(1);
+    await db.insert(backlinks).values({
+      clientId: owner?.id ?? 1,
+      sourceUrl: publishedUrl,
+      sourceDomain: new URL(publishedUrl).hostname,
+      targetUrl: blogUrl(article.id),
+      anchorText: article.title.slice(0, 60),
+      status: "active",
+      source: "manual",
+      method: `distribution:${channel.name}`,
+      placedAt: new Date(),
+    });
+  }
+
+  revalidatePath("/content-factory");
+  return { ok: true, message: "已登记发布 + 外链入账" };
 }

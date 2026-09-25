@@ -7,6 +7,8 @@ import {
   deleteKnowledgeBaseAction,
   generateArticleAction,
   publishArticleAction,
+  adaptForChannelAction,
+  markDistributedAction,
 } from "./actions";
 
 const inputCls =
@@ -139,5 +141,82 @@ export function PublishButton({ articleId }: { articleId: number }) {
         <span className="ml-1 text-[10px] text-rose-300">{state.message}</span>
       )}
     </form>
+  );
+}
+
+
+export function DistributionPanel({
+  publishedArticles,
+  channels,
+}: {
+  publishedArticles: { id: number; title: string }[];
+  channels: { id: number; name: string; region: string; seoValue: number; geoValue: number }[];
+}) {
+  const [adaptState, adaptAction, adaptPending] = useActionState(
+    adaptForChannelAction,
+    null,
+  );
+  const [markState, markAction, markPending] = useActionState(
+    markDistributedAction,
+    null,
+  );
+
+  const inputCls =
+    "w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-violet-500/50";
+
+  return (
+    <div className="space-y-3 rounded-2xl border border-violet-500/20 bg-violet-500/[0.04] p-5">
+      <form action={adaptAction} className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
+        <label className="space-y-1 text-xs">
+          <span className="text-muted-foreground">已发布文章</span>
+          <select name="articleId" className={inputCls}>
+            {publishedArticles.map((a) => (
+              <option key={a.id} value={a.id}>
+                #{a.id} {a.title.slice(0, 30)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="space-y-1 text-xs">
+          <span className="text-muted-foreground">目标渠道</span>
+          <select name="channelId" className={inputCls}>
+            {channels.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}({c.region} · SEO{c.seoValue}/GEO{c.geoValue})
+              </option>
+            ))}
+          </select>
+        </label>
+        <button type="submit" disabled={adaptPending} className={btnCls}>
+          {adaptPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          {adaptPending ? "平台化改编中(约 1-2 分钟)" : "改编 → 待发布"}
+        </button>
+      </form>
+      {adaptState?.distributionId && (
+        <form action={markAction} className="flex flex-wrap items-center gap-2 rounded-xl bg-white/[0.03] p-3">
+          <input type="hidden" name="distributionId" value={adaptState.distributionId} />
+          <span className="text-xs text-muted-foreground">
+            {adaptState.message}· 平台发布后填 URL 登记外链:
+          </span>
+          <input
+            name="publishedUrl"
+            placeholder="https://zhuanlan.zhihu.com/p/..."
+            className="min-w-64 flex-1 rounded-lg border border-white/10 bg-black/30 px-3 py-1.5 text-xs"
+          />
+          <button
+            type="submit"
+            disabled={markPending}
+            className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
+          >
+            {markPending ? "登记中…" : "登记外链"}
+          </button>
+          {markState && (
+            <span className={`text-xs ${markState.ok ? "text-emerald-300" : "text-rose-300"}`}>
+              {markState.message}
+            </span>
+          )}
+        </form>
+      )}
+    </div>
   );
 }
