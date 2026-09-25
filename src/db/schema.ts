@@ -2638,3 +2638,24 @@ export const cfAuthors = sqliteTable("cf_authors", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
 });
+
+
+export const cfChannels = sqliteTable("cf_channels", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  platformType: text("platform_type").notNull().default("blog"),
+  region: text("region").notNull().default("global"),
+  domain: text("domain").notNull().default(""),
+  linkForm: text("link_form").notNull().default("none"),
+  seoValue: integer("seo_value").notNull().default(3),
+  geoValue: integer("geo_value").notNull().default(3),
+  difficulty: text("difficulty").notNull().default("medium"),
+  risk: text("risk").notNull().default("medium"),
+  niches: text("niches").notNull().default("[]"),
+  style: text("style").notNull().default("{}"),
+  submitUrl: text("submit_url").notNull().default(""),
+  notes: text("notes").notNull().default(""),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
