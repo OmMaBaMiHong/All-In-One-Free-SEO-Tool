@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/i18n/zh";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -806,6 +807,14 @@ const tools = [
     accent: "violet",
   },
   {
+    href: "/tools/faq-generator",
+    icon: Sparkles,
+    title: "FAQPage 生成器 ⭐",
+    description:
+      "从任意页面或粘贴内容生成 FAQ 问答对 + FAQPage JSON-LD(实测 2.7x AI 引用率)。cn 审计最大缺口的一键修复。",
+    accent: "violet",
+  },
+  {
     href: "/tools/geo-score",
     icon: Sparkles,
     title: "GEO composite score ⭐",
@@ -1293,7 +1302,7 @@ function ToolCard({
                   : "bg-amber-500 ring-amber-500/25"
               }`}
             />
-            <span className="min-w-0 flex-1">{tool.title}</span>
+            <span className="min-w-0 flex-1">{t(tool.title)}</span>
             <span className="sr-only">
               {usable ? " (ready to use)" : " (needs an AI key)"}
             </span>

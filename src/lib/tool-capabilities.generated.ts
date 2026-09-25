@@ -3,8 +3,8 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 227 routes · 102 need AI · 70 use a browser.
-// 92 are /tools/* · 35 need AI · 92 carry copy.
+// 228 routes · 103 need AI · 70 use a browser.
+// 93 are /tools/* · 36 need AI · 93 carry copy.
 
 export const TOOL_CAPABILITIES = [
   { route: "/", needsAI: true, aiUsage: "required", usesBrowser: true },
@@ -169,6 +169,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/tools/eeat-audit", needsAI: true, aiUsage: "required", usesBrowser: false, title: "E-E-A-T audit", description: "Score any URL on Experience / Expertise / Authoritativeness / Trust. Detects bylines, schema, citations, trust pages, then AI writes a fix punch list." },
   { route: "/tools/external", needsAI: false, aiUsage: "none", usesBrowser: false, title: "External tools launchpad", description: "Paste a URL or keyword once → all 28 external tools (Moz DA, Ahrefs, SSL Labs, Wayback, etc.) open with that context pre-filled." },
   { route: "/tools/facet-trap", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Faceted-nav crawl-trap detector", description: "Filter / sort / pagination params can balloon a crawl from thousands to millions of near-duplicates. We crawl + group URLs by query shape and flag groups needing canonical/noindex protection." },
+  { route: "/tools/faq-generator", needsAI: true, aiUsage: "required", usesBrowser: false, title: "FAQPage 生成器 ⭐", description: "从任意页面或粘贴内容生成 FAQ 问答对 + FAQPage JSON-LD(实测 2.7x AI 引用率)。cn 审计最大缺口的一键修复。" },
   { route: "/tools/freshness", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Freshness audit ⭐", description: "AI-search systems skip undated or stale pages. Fetches every freshness signal (HTTP header, meta tags, JSON-LD dateModified, <time> elements, visible 'Last updated' text) and gives you a ready-to-paste patch." },
   { route: "/tools/gbp-reply", needsAI: true, aiUsage: "partial", usesBrowser: false, title: "GBP review reply AI ⭐", description: "Pull GBP reviews, AI drafts a reply per review (tone matched to star rating), you approve or edit, post via the GBP API — full loop in one screen." },
   { route: "/tools/geo-rewrite", needsAI: true, aiUsage: "required", usesBrowser: false, title: "GEO rewrite workbench ⭐", description: "One click: audit (cn/global) → compiled rewrite instructions → LLM rewrite → GEU quality guard. Fact-breaking rewrites are rejected with reasons." },
