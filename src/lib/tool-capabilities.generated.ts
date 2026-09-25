@@ -3,8 +3,8 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 225 routes · 100 need AI · 70 use a browser.
-// 91 are /tools/* · 34 need AI · 91 carry copy.
+// 226 routes · 101 need AI · 70 use a browser.
+// 92 are /tools/* · 35 need AI · 92 carry copy.
 
 export const TOOL_CAPABILITIES = [
   { route: "/", needsAI: true, aiUsage: "required", usesBrowser: true },
@@ -170,6 +170,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/tools/facet-trap", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Faceted-nav crawl-trap detector", description: "Filter / sort / pagination params can balloon a crawl from thousands to millions of near-duplicates. We crawl + group URLs by query shape and flag groups needing canonical/noindex protection." },
   { route: "/tools/freshness", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Freshness audit ⭐", description: "AI-search systems skip undated or stale pages. Fetches every freshness signal (HTTP header, meta tags, JSON-LD dateModified, <time> elements, visible 'Last updated' text) and gives you a ready-to-paste patch." },
   { route: "/tools/gbp-reply", needsAI: true, aiUsage: "partial", usesBrowser: false, title: "GBP review reply AI ⭐", description: "Pull GBP reviews, AI drafts a reply per review (tone matched to star rating), you approve or edit, post via the GBP API — full loop in one screen." },
+  { route: "/tools/geo-rewrite", needsAI: true, aiUsage: "required", usesBrowser: false, title: "GEO rewrite workbench ⭐", description: "One click: audit (cn/global) → compiled rewrite instructions → LLM rewrite → GEU quality guard. Fact-breaking rewrites are rejected with reasons." },
   { route: "/tools/geo-score", needsAI: true, aiUsage: "required", usesBrowser: false, title: "GEO composite score ⭐", description: "Weighted scorecard for AI search visibility — citability, brand authority, content E-E-A-T, technical, schema, platform tactics. Forces you to fix the weakest leg first." },
   { route: "/tools/geo-swot", needsAI: true, aiUsage: "required", usesBrowser: true, title: "GEO SWOT", description: "Strengths, weaknesses, opportunities and threats for AI-search visibility, reasoned from the last 30 days of AI visibility checks for a client." },
   { route: "/tools/geo-swot/c/[clientId]", needsAI: true, aiUsage: "required", usesBrowser: true },

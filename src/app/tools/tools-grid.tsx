@@ -798,6 +798,14 @@ const tools = [
     accent: "violet",
   },
   {
+    href: "/tools/geo-rewrite",
+    icon: Sparkles,
+    title: "GEO rewrite workbench ⭐",
+    description:
+      "One click: audit (cn/global) → compiled rewrite instructions → LLM rewrite → GEU quality guard. Fact-breaking rewrites are rejected with reasons.",
+    accent: "violet",
+  },
+  {
     href: "/tools/geo-score",
     icon: Sparkles,
     title: "GEO composite score ⭐",
