@@ -320,6 +320,17 @@ export const aiVisibilityChecks = sqliteTable("ai_visibility_checks", {
   sentimentScore: integer("sentiment_score"),
   /** Short LLM-written rationale (~20 words) so the user can audit. */
   sentimentReason: text("sentiment_reason"),
+  /**
+   * Semantic endorsement rank from the MRR judge (src/lib/geo-metrics/
+   * rank.ts): 1 = the answer's first pick. Null = mentioned but not
+   * ranked, or not judged yet. `rankSource` tells judge output from the
+   * deterministic ordinal sidecar's disagreement trail.
+   */
+  rank: integer("rank"),
+  rankEvidence: text("rank_evidence", { mode: "json" }).$type<string[]>(),
+  answerIntent: text("answer_intent"),
+  rankSource: text("rank_source"),
+  deterministicRank: integer("deterministic_rank"),
   checkedAt: integer("checked_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),

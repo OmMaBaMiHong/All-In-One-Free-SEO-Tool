@@ -220,6 +220,25 @@ export function GeoScoreClient({
                         ))}
                       </div>
                     )}
+                    <details className="mt-2">
+                      <summary className="cursor-pointer text-xs text-violet-300 hover:underline">
+                        改写指令包(复制给任意 LLM 执行)
+                      </summary>
+                      <div className="mt-2 space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void navigator.clipboard.writeText(m.rewriteMarkdown);
+                          }}
+                          className="rounded-md border border-violet-500/30 bg-violet-500/10 px-2 py-1 text-[11px] text-violet-300 hover:bg-violet-500/20"
+                        >
+                          复制全文
+                        </button>
+                        <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-black/40 p-3 text-[11px] leading-relaxed text-muted-foreground">
+                          {m.rewriteMarkdown}
+                        </pre>
+                      </div>
+                    </details>
                   </div>
                 );
               })}

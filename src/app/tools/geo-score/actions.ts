@@ -6,6 +6,7 @@ import { clients } from "@/db/schema";
 import { scanCwv } from "@/lib/pagespeed";
 import { auditEeat } from "@/lib/eeat-audit";
 import { auditGeo } from "@/lib/geo-audit-kernel";
+import { compileRewriteInstructions } from "@/lib/geo-metrics/rewrite-instructions";
 import { scoreAllPassages } from "@/lib/aio-passage-scorer";
 import { parseHtmlToMarkdown } from "@/lib/main-content-extractor";
 import { fetchCruxData } from "@/lib/crux";
@@ -42,6 +43,8 @@ export interface MarketAuditSummary {
   seoScore: number;
   veto: string[];
   weakest: { id: string; name: string; earned: number; weight: number; note: string }[];
+  /** Full rewrite-instruction package (markdown) compiled from the audit. */
+  rewriteMarkdown: string;
 }
 
 const USER_AGENT =
@@ -228,6 +231,10 @@ export async function runGeoScore(
           weakest: r.weakest.map((w) => ({
             id: w.id, name: w.name, earned: w.earned, weight: w.weight, note: w.note,
           })),
+          rewriteMarkdown: compileRewriteInstructions(
+            { items: r.items, market: m },
+            { engine: "deepseek" },
+          ).markdown,
         };
       };
       dualMarket = { cn: compact("cn"), global: compact("global") };

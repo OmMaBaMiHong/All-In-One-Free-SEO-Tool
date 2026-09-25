@@ -21,6 +21,7 @@ import {
 } from "@/lib/geo-metrics/metrics";
 import { isBrandedQuery } from "@/lib/geo-metrics/brand-tags";
 import { formatShare } from "@/lib/geo-metrics/stats";
+import { mrr } from "@/lib/geo-metrics/rank";
 
 const providerLabel: Record<string, string> = {
   openai: "ChatGPT",
@@ -103,11 +104,15 @@ export default async function PerClientAIVisibilityPage({
     citationsCount: Array.isArray(c.citations) ? c.citations.length : 0,
     sentiment: c.sentiment,
     error: c.error,
+    rank: c.rank ?? null,
   }));
   const summary =
     checks.length > 0
       ? summarizeVisibility(metricRows, brandIdentity, `client-${client.id}`)
       : null;
+  const rankedJudgments = checks
+    .filter((c) => c.mentionsDomain && c.grounding === "live" && typeof c.rank === "number")
+    .map((c) => ({ rank: c.rank as number }));
 
   const browserScrapedEnabled =
     (await getSetting<boolean>("ai_visibility.browser_scraped_enabled")) ??
@@ -192,6 +197,15 @@ export default async function PerClientAIVisibilityPage({
                 {summary.memory.mentions > 0 &&
                   ` (${summary.memory.mentions} mention them)`}
               </div>
+              {rankedJudgments.length > 0 && (
+                <div className="mt-1 text-[11px] text-violet-300">
+                  MRR {(mrr(rankedJudgments) ?? 0).toFixed(2)} · 平均位次{" "}
+                  {(
+                    rankedJudgments.reduce((s, j) => s + (j.rank ?? 0), 0) /
+                    rankedJudgments.length
+                  ).toFixed(1)}
+                </div>
+              )}
             </div>
             <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
@@ -410,6 +424,9 @@ export default async function PerClientAIVisibilityPage({
                               }
                             >
                               {providerLabel[c.provider] ?? c.provider}
+                              {typeof c.rank === "number" && (
+                                <span className="font-semibold">#{c.rank}</span>
+                              )}
                               {c.grounding !== "live" && (
                                 <span aria-hidden className="opacity-60">
                                   ·mem

@@ -15,6 +15,8 @@ import {
 import { configuredProviders } from "@/lib/api-keys";
 import { getSetting } from "@/lib/settings-store";
 import { logActivity } from "@/lib/activity";
+import { judgeRank, type RankJudgment } from "@/lib/geo-metrics/rank";
+import { brandTerms } from "@/lib/geo-metrics/brand-tags";
 import { classifySentiment } from "@/lib/ai-sentiment";
 
 export type RunCheckResult =
@@ -38,6 +40,7 @@ export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
       clientId: keywords.clientId,
       clientName: clients.name,
       clientUrl: clients.url,
+      brandAliases: clients.brandAliases,
     })
     .from(keywords)
     .leftJoin(clients, eq(keywords.clientId, clients.id))
@@ -93,9 +96,27 @@ export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
     ),
   );
 
+  // MRR rank judge — only answers that actually mentioned the brand need
+  // a position verdict. One extra LLM call per mention (cheap, and the
+  // evidence-contract keeps it honest). Failures leave rank null and the
+  // check row still lands.
+  const terms = brandTerms({
+    clientName: row.clientName ?? "",
+    domain: row.clientUrl,
+    aliases: row.brandAliases,
+  });
+  const judgments: (RankJudgment | null)[] = await Promise.all(
+    results.map((r) =>
+      r.mentionsDomain && !r.error
+        ? judgeRank(row.query, r.response, terms).catch(() => null)
+        : Promise.resolve(null),
+    ),
+  );
+
   for (let i = 0; i < results.length; i++) {
     const r = results[i];
     const sent = sentimentByIdx[i];
+    const judged = judgments[i];
     await db.insert(aiVisibilityChecks).values({
       keywordId,
       provider: r.provider,
@@ -109,6 +130,11 @@ export async function runAiCheck(keywordId: number): Promise<RunCheckResult> {
       sentiment: sent?.sentiment ?? null,
       sentimentScore: sent?.score ?? null,
       sentimentReason: sent?.reason ?? null,
+      rank: judged?.rank ?? null,
+      rankEvidence: judged?.evidence ?? null,
+      answerIntent: judged?.intent ?? null,
+      rankSource: judged?.source ?? null,
+      deterministicRank: judged?.deterministicRank ?? null,
     });
   }
 
