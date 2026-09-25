@@ -29,7 +29,7 @@ export async function OnboardingChecklistPanel() {
             </h2>
             <p className="text-[11px] text-muted-foreground">
               {nextSteps.length === 1
-                ? "One step left and you're fully running."
+                ? "还差一步就全部就绪。"
                 : `Finish ${nextSteps.length} more steps to unlock the full tool.`}
             </p>
           </div>

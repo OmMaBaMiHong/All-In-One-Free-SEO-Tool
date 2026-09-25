@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { t } from "@/lib/i18n/zh";
 import { gte, eq, count, and, desc } from "drizzle-orm";
 import {
   Activity,
@@ -140,7 +141,7 @@ Write the Monday-morning briefing. Highlight any anomalies (zero activity = sile
           </p>
         )}
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Aggregate activity across all {clientCount} client
+          近 7 天全部 {clientCount} 个客户的聚合动态
           {clientCount === 1 ? "" : "s"} over the last 7 days.
         </p>
       </header>
@@ -148,21 +149,21 @@ Write the Monday-morning briefing. Highlight any anomalies (zero activity = sile
       <div className="grid gap-3 p-5 sm:grid-cols-3 lg:grid-cols-4">
         <Tile
           icon={ListChecks}
-          label="Tasks completed"
+          label={t("完成任务")}
           value={tasksDone}
           href="/tasks"
           tone="emerald"
         />
         <Tile
           icon={Link2}
-          label="Links built"
+          label={t("新增外链")}
           value={linksBuilt}
           href="/backlinks"
           tone="cyan"
         />
         <Tile
           icon={MousePointerClick}
-          label="Short-link clicks"
+          label={t("短链点击")}
           value={clicksRecent}
           href="/links"
           tone="violet"
@@ -170,7 +171,7 @@ Write the Monday-morning briefing. Highlight any anomalies (zero activity = sile
         />
         <Tile
           icon={Megaphone}
-          label="Brand mentions"
+          label={t("品牌提及")}
           value={mentionsRecent}
           href="/brand-monitor"
           tone={positiveMentions > 0 ? "emerald" : "amber"}
@@ -182,14 +183,14 @@ Write the Monday-morning briefing. Highlight any anomalies (zero activity = sile
         />
         <Tile
           icon={Activity}
-          label="Page changes"
+          label={t("页面变动")}
           value={pageChangesRecent}
           href="/monitor"
           tone={pageChangesRecent > 0 ? "amber" : "neutral"}
         />
         <Tile
           icon={TrendingUp}
-          label="Active clients"
+          label={t("活跃客户")}
           value={recentActiveClients.length}
           href="/clients"
           tone="violet"

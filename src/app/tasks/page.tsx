@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n/zh";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 
@@ -24,10 +25,10 @@ import { KanbanBoard } from "./kanban-board";
 import { isOpenTask } from "@/lib/task-status";
 
 const filterMap = {
-  all: { label: "All", days: null },
-  today: { label: "Today", days: 0 },
-  week: { label: "This week", days: 7 },
-  month: { label: "This month", days: 30 },
+  all: { label: t("全部"), days: null },
+  today: { label: t("今天"), days: 0 },
+  week: { label: t("本周"), days: 7 },
+  month: { label: t("本月"), days: 30 },
 } as const;
 
 type Filter = keyof typeof filterMap;
@@ -89,7 +90,7 @@ export default async function TasksPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader
-        title="Tasks"
+        title={t("任务")}
         description="Auto-generated from audits and niche templates, plus anything you add manually."
         icon={ListChecks}
         accent="amber"
@@ -100,7 +101,7 @@ export default async function TasksPage({
               className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-white/10 transition-colors hover:bg-white/10 hover:text-foreground"
             >
               <LayoutTemplate className="size-3.5" />
-              Playbooks
+              {t("Playbooks")}
             </Link>
             <NewTaskTrigger clients={allClients} />
             <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-card/60 p-1 backdrop-blur">
@@ -112,7 +113,7 @@ export default async function TasksPage({
                   : "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:bg-white/5 hover:text-foreground"
               }
             >
-              <List className="size-3" /> List
+              <List className="size-3" /> {t("列表")}
             </Link>
             <Link
               href={`/tasks?filter=${filter}&view=kanban`}

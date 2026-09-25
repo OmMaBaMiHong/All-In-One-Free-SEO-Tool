@@ -179,7 +179,7 @@ export default async function DashboardPage() {
           </div>
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground">
             {isFresh
-              ? "Welcome. Let's set up your first 5 minutes."
+              ? "欢迎。先花 5 分钟完成初始设置。"
               : `${greeting}, 以下是需要关注的事项。`}
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
@@ -383,17 +383,17 @@ export default async function DashboardPage() {
                 <div>
                   <h2 className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
                     <Sparkles className="size-3.5 text-violet-300" />
-                    Priority tasks
+                    {t("优先任务")}
                   </h2>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    Auto-generated from audits and niche templates
+                    {t("由审计与行业模板自动生成")}
                   </p>
                 </div>
                 <Link
                   href="/tasks"
                   className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
-                  View all
+                  {t("查看全部")}
                   <ArrowUpRight className="size-3" />
                 </Link>
               </header>
@@ -434,17 +434,17 @@ export default async function DashboardPage() {
                 <div>
                   <h2 className="flex items-center gap-2 text-[13px] font-semibold text-foreground">
                     <ClipboardList className="size-3.5 text-violet-300" />
-                    Recent audits
+                    {t("最近审计")}
                   </h2>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    Last 5 across all clients
+                    {t("全部客户最近 5 次")}
                   </p>
                 </div>
                 <Link
                   href="/clients"
                   className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
-                  Clients
+                  {t("客户")}
                   <ArrowUpRight className="size-3" />
                 </Link>
               </header>
@@ -619,24 +619,24 @@ function BentoQuickActions() {
 }
 
 /**
- * "What you'll unlock" side panel shown on the fresh dashboard. Replaces
+ * "你将解锁" side panel shown on the fresh dashboard. Replaces
  * the old wordy WelcomeTour with a tighter visual: feature pills + the
  * "100+ tools" stat, anchoring the page right-hand column.
  */
 function FeatureHighlights() {
   const highlights = [
     { icon: ClipboardList, label: "30+ audit checks", tone: "text-violet-400" },
-    { icon: Search, label: "Daily rank tracker", tone: "text-cyan-400" },
-    { icon: FileDown, label: "White-label reports", tone: "text-amber-400" },
+    { icon: Search, label: "每日排名追踪", tone: "text-cyan-400" },
+    { icon: FileDown, label: "白标报告", tone: "text-amber-400" },
     { icon: Bot, label: "AI agent + chat", tone: "text-fuchsia-400" },
-    { icon: Link2, label: "Backlink monitor", tone: "text-emerald-400" },
+    { icon: Link2, label: "外链监控", tone: "text-emerald-400" },
     { icon: Wrench, label: "100+ free tools", tone: "text-rose-400" },
   ];
   return (
     <aside className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5 shadow">
       <div>
         <div className="text-xs font-medium uppercase tracking-wider text-violet-400">
-          What you&apos;ll unlock
+          你将解锁
         </div>
         <h3 className="mt-1 text-base font-semibold text-foreground">
           The full SEO stack, free

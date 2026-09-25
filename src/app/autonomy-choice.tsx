@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/i18n/zh";
 
 import { useState, useTransition } from "react";
 import { Bot, Check, Loader2 } from "lucide-react";
@@ -18,18 +19,18 @@ import { chooseAutonomyAction } from "./autonomy-actions";
 const OPTIONS: { level: AutonomyLevel; label: string; hint: string }[] = [
   {
     level: "suggest",
-    label: "Just tell me",
-    hint: "Finds everything, changes nothing. You apply what you agree with.",
+    label: "只告诉我",
+    hint: "全部找出,什么都不改。你认可的自己动手。",
   },
   {
     level: "apply_safe",
-    label: "Fix the obvious things",
-    hint: "Applies fixes that are wrong by a measurable rule. Queues judgement calls for you.",
+    label: "修复显而易见的问题",
+    hint: "只按可量化规则修复错误,需要判断的留给你。",
   },
   {
     level: "apply_all",
-    label: "Do it all",
-    hint: "Applies everything it proposes, including wording. You review after the fact.",
+    label: "全部自动",
+    hint: "应用它提出的所有修改(含文案),事后你复查。",
   },
 ];
 
@@ -61,7 +62,7 @@ export function AutonomyChoice({ current }: { current: AutonomyLevel }) {
         <Bot className="mt-0.5 size-4 shrink-0 text-violet-400" />
         <span>
           <h2 className="text-sm font-semibold">
-            How much should the agent do on its own?
+            代理应该自动做多少?
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             It currently finds work every night and changes nothing, because

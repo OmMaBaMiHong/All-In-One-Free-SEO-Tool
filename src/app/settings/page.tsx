@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n/zh";
 export const dynamic = "force-dynamic";
 
 import path from "node:path";
@@ -126,7 +127,7 @@ export default async function SettingsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <PageHeader
-        title="Settings"
+        title={t("设置")}
         description="Workspace preferences, integrations, and where your data lives."
         icon={SettingsIcon}
         accent="violet"
