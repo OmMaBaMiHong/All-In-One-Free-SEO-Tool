@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 const timestamps = {
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -334,6 +334,36 @@ export const aiVisibilityChecks = sqliteTable("ai_visibility_checks", {
   checkedAt: integer("checked_at", { mode: "timestamp" })
     .notNull()
     .default(sql`(unixepoch())`),
+});
+
+/**
+ * Derived time series for the AI-visibility dashboard. One row per
+ * "Check all keywords" run. Raw evidence lives in ai_visibility_checks;
+ * this is the aggregated series the trend chart reads. Percentages are
+ * stored with their bootstrap bounds so the UI can show honest intervals
+ * even for old snapshots after the scoring kernel changes.
+ */
+export const geoVisibilitySnapshots = sqliteTable("geo_visibility_snapshots", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id")
+    .notNull()
+    .references(() => clients.id, { onDelete: "cascade" }),
+  capturedAt: integer("captured_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+  checks: integer("checks").notNull().default(0),
+  mentions: integer("mentions").notNull().default(0),
+  failed: integer("failed").notNull().default(0),
+  mentionRate: real("mention_rate"),
+  mentionLow: real("mention_low"),
+  mentionHigh: real("mention_high"),
+  citationShare: real("citation_share"),
+  mrr: real("mrr"),
+  avgRank: real("avg_rank"),
+  brandedChecks: integer("branded_checks").notNull().default(0),
+  brandedMentions: integer("branded_mentions").notNull().default(0),
+  nonBrandedChecks: integer("non_branded_checks").notNull().default(0),
+  nonBrandedMentions: integer("non_branded_mentions").notNull().default(0),
 });
 
 export const seoResources = sqliteTable("seo_resources", {

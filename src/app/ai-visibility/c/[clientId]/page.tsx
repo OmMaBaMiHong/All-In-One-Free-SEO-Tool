@@ -22,6 +22,8 @@ import {
 import { isBrandedQuery } from "@/lib/geo-metrics/brand-tags";
 import { formatShare } from "@/lib/geo-metrics/stats";
 import { mrr } from "@/lib/geo-metrics/rank";
+import { db as appDb } from "@/db/client";
+import { geoVisibilitySnapshots } from "@/db/schema";
 
 const providerLabel: Record<string, string> = {
   openai: "ChatGPT",
@@ -113,6 +115,14 @@ export default async function PerClientAIVisibilityPage({
   const rankedJudgments = checks
     .filter((c) => c.mentionsDomain && c.grounding === "live" && typeof c.rank === "number")
     .map((c) => ({ rank: c.rank as number }));
+  const snapshots = await appDb
+    .select()
+    .from(geoVisibilitySnapshots)
+    .where(eq(geoVisibilitySnapshots.clientId, clientId))
+    .orderBy(desc(geoVisibilitySnapshots.capturedAt))
+    .limit(2);
+  const latestSnapshot = snapshots[0] ?? null;
+  const previousSnapshot = snapshots[1] ?? null;
 
   const browserScrapedEnabled =
     (await getSetting<boolean>("ai_visibility.browser_scraped_enabled")) ??
@@ -188,8 +198,26 @@ export default async function PerClientAIVisibilityPage({
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
                 Mention rate · live answers
               </div>
-              <div className="mt-1 text-2xl font-semibold">
-                {formatShare(summary.live.mentionRate)}
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className="text-2xl font-semibold">
+                  {formatShare(summary.live.mentionRate)}
+                </span>
+                {latestSnapshot && previousSnapshot?.mentionRate != null && latestSnapshot.mentionRate != null && (
+                  <span
+                    className={`text-[11px] font-medium ${
+                      latestSnapshot.mentionRate >= previousSnapshot.mentionRate
+                        ? "text-emerald-300"
+                        : "text-rose-300"
+                    }`}
+                    title={`上次快照 ${Math.round(previousSnapshot.mentionRate * 100)}%`}
+                  >
+                    {latestSnapshot.mentionRate >= previousSnapshot.mentionRate ? "▲" : "▼"}
+                    {Math.round(
+                      Math.abs(latestSnapshot.mentionRate - previousSnapshot.mentionRate) * 100,
+                    )}
+                    pp
+                  </span>
+                )}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
                 {summary.live.mentions}/{summary.live.checks} answers ·{" "}

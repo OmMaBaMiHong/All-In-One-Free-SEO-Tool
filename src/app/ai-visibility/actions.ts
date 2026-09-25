@@ -17,6 +17,7 @@ import { getSetting } from "@/lib/settings-store";
 import { logActivity } from "@/lib/activity";
 import { judgeRank, type RankJudgment } from "@/lib/geo-metrics/rank";
 import { brandTerms } from "@/lib/geo-metrics/brand-tags";
+import { snapshotClientVisibility } from "@/lib/geo-metrics/snapshot";
 import { classifySentiment } from "@/lib/ai-sentiment";
 
 export type RunCheckResult =
@@ -211,6 +212,11 @@ export async function runAllAiChecks(opts?: {
     if (INTER_KEYWORD_SLEEP_MS > 0) {
       await new Promise((res) => setTimeout(res, INTER_KEYWORD_SLEEP_MS));
     }
+  }
+
+  // Trend series: one derived row per full run. Never breaks the run.
+  if (typeof opts?.clientId === "number") {
+    await snapshotClientVisibility(opts.clientId).catch(() => null);
   }
 
   revalidatePath("/ai-visibility");
