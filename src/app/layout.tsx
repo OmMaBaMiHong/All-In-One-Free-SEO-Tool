@@ -8,6 +8,7 @@ import { TopBar } from "@/components/shell/top-bar";
 import { AIAssistant } from "@/components/shell/ai-assistant";
 import { PowerWidget } from "@/components/shell/power-widget";
 import { FirstRunPrompt } from "@/components/shell/first-run-prompt";
+import { I18nRuntime } from "@/components/shell/i18n-runtime";
 import { Toaster } from "@/components/shell/toaster";
 import { ConfirmDialogProvider } from "@/components/ui/confirm-dialog";
 import { ServiceWorkerRegister } from "@/components/shell/sw-register";
@@ -157,7 +158,8 @@ export default async function RootLayout({
                 <FirstRunPrompt />
               </>
             )}
-            <Toaster />
+            <I18nRuntime />
+        <Toaster />
             <ServiceWorkerRegister />
             <ClientErrorCapture />
             <ShortcutsHelpHotkey />
