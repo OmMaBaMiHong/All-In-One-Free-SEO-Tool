@@ -169,6 +169,62 @@ export function GeoScoreClient({
               );
             })}
           </section>
+
+          {state.dualMarket && (
+            <section className="space-y-2">
+              <h3 className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                中国 / 全球双市场评分(确定性 22 项内核)
+              </h3>
+              {(
+                [
+                  ["cn", "中国市场 (cn)", "百度/AI 爬虫准入 · llms 宽容"],
+                  ["global", "全球市场 (global)", "GPTBot/ClaudeBot/PerplexityBot 准入 · llms 一级信号"],
+                ] as const
+              ).map(([key, label, hint]) => {
+                const m = state.dualMarket![key];
+                return (
+                  <div
+                    key={key}
+                    className={`rounded-xl border px-4 py-3 ${
+                      m.veto.length > 0
+                        ? "border-rose-500/30 bg-rose-500/[0.05]"
+                        : m.total >= 70
+                          ? "border-emerald-500/20 bg-emerald-500/[0.04]"
+                          : "border-amber-500/20 bg-amber-500/[0.04]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{label}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{hint}</p>
+                      </div>
+                      <span className="text-2xl font-bold tabular-nums">{m.total}</span>
+                    </div>
+                    <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
+                      <span>GEO 引用就绪 <b className="text-foreground">{Math.round(m.geoScore)}</b></span>
+                      <span>SEO 排名就绪 <b className="text-foreground">{Math.round(m.seoScore)}</b></span>
+                    </div>
+                    {m.veto.length > 0 && (
+                      <div className="mt-2 rounded-lg bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+                        {m.veto.map((v) => (
+                          <p key={v}>⚠ {v}(总分封顶 60)</p>
+                        ))}
+                      </div>
+                    )}
+                    {m.weakest.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {m.weakest.slice(0, 3).map((w) => (
+                          <p key={w.id} className="text-xs text-muted-foreground">
+                            · [{w.id}] {w.name} {w.earned}/{w.weight} — {w.note}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </section>
+          )}
         </>
       )}
 

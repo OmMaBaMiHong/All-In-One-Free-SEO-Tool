@@ -5,6 +5,7 @@ import { db } from "@/db/client";
 import { clients } from "@/db/schema";
 import { scanCwv } from "@/lib/pagespeed";
 import { auditEeat } from "@/lib/eeat-audit";
+import { auditGeo } from "@/lib/geo-audit-kernel";
 import { scoreAllPassages } from "@/lib/aio-passage-scorer";
 import { parseHtmlToMarkdown } from "@/lib/main-content-extractor";
 import { fetchCruxData } from "@/lib/crux";
@@ -26,9 +27,22 @@ export type GeoScoreState =
         platformTactics: { score: number; weight: number; note: string };
       };
       summary: string;
+      /** Deterministic cn/global kernel scores (HeiGe 22-item port). */
+      dualMarket?: {
+        cn: MarketAuditSummary;
+        global: MarketAuditSummary;
+      };
     }
   | { ok: false; error: string }
   | null;
+
+export interface MarketAuditSummary {
+  total: number;
+  geoScore: number;
+  seoScore: number;
+  veto: string[];
+  weakest: { id: string; name: string; earned: number; weight: number; note: string }[];
+}
 
 const USER_AGENT =
   "Mozilla/5.0 (compatible; SeoToolBot/0.1; +https://localhost)";
@@ -184,6 +198,42 @@ export async function runGeoScore(
     // fallback
   }
 
+  // ── 7. Deterministic cn/global kernel (HeiGe 22-item port) ──────────
+  // Robots/llms.txt are fetched from the same origin; either 404s → the
+  // kernel's unknown semantics shrink the denominator instead of failing.
+  let dualMarket: { cn: MarketAuditSummary; global: MarketAuditSummary } | undefined;
+  {
+    const origin = new URL(url).origin;
+    const [robotsRes, llmsRes] = await Promise.all([
+      guardedFetch(`${origin}/robots.txt`, {
+        headers: { "user-agent": USER_AGENT },
+        signal: AbortSignal.timeout(8000),
+      }).catch(() => null),
+      guardedFetch(`${origin}/llms.txt`, {
+        headers: { "user-agent": USER_AGENT },
+        signal: AbortSignal.timeout(8000),
+      }).catch(() => null),
+    ]);
+    const robotsTxt = robotsRes?.ok ? await robotsRes.text() : null;
+    const llmsTxt = llmsRes?.ok ? await llmsRes.text() : null;
+    if (html) {
+      const brand = new URL(url).hostname.split(".")[0] || undefined;
+      const compact = (m: "cn" | "global"): MarketAuditSummary => {
+        const r = auditGeo({ html, market: m, robotsTxt, llmsTxt, brandName: brand });
+        return {
+          total: r.total,
+          geoScore: r.geoScore,
+          seoScore: r.seoScore,
+          veto: r.veto,
+          weakest: r.weakest.map((w) => ({
+            id: w.id, name: w.name, earned: w.earned, weight: w.weight, note: w.note,
+          })),
+        };
+      };
+      dualMarket = { cn: compact("cn"), global: compact("global") };
+    }
+  }
+
   // Composite (weighted average)
   const composite = Math.round(
     citability.score * (citability.weight / 100) +
@@ -218,6 +268,7 @@ export async function runGeoScore(
     composite,
     dimensions: { citability, brandAuthority, contentEeat, technical, schema, platformTactics },
     summary,
+    dualMarket,
   };
   await recordToolRun({
     toolId: "geo-score",
