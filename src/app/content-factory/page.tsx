@@ -70,7 +70,7 @@ export default async function ContentFactoryPage() {
     })
     .from(cfTitleLibraries);
   const articles = await db
-    .select({ id: cfArticles.id, title: cfArticles.title, status: cfArticles.status, source: cfArticles.source })
+    .select({ id: cfArticles.id, title: cfArticles.title, status: cfArticles.status, source: cfArticles.source, aiScore: cfArticles.aiScore })
     .from(cfArticles)
     .orderBy(desc(cfArticles.id))
     .limit(10);
@@ -167,6 +167,17 @@ export default async function ContentFactoryPage() {
                   <span className="ml-2 text-[10px] text-muted-foreground">
                     {a.status} · {a.source}
                   </span>
+                  {a.aiScore !== null && (
+                    <span
+                      className={`ml-2 inline-flex rounded-full px-1.5 py-0.5 text-[10px] ring-1 ring-inset ${
+                        a.status === "rejected"
+                          ? "bg-rose-500/10 text-rose-300 ring-rose-500/30"
+                          : "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30"
+                      }`}
+                    >
+                      质检 {Math.round(a.aiScore)}/100
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>

@@ -46,6 +46,7 @@ import { db } from "@/db/client";
 import { cfKnowledgeBases, cfKnowledgeChunks } from "@/db/schema";
 import { ingestKnowledge, recallKnowledge } from "@/lib/knowledge/service";
 import { callAI } from "@/lib/ai-call";
+import { computeQualityGate } from "@/lib/knowledge/quality-gate";
 
 export async function ingestKnowledgeAction(
   _prev: { ok: boolean; message: string } | null,
@@ -126,21 +127,37 @@ export async function generateArticleAction(
     return { ok: false, message: "模型返回为空或过短,请检查 AI 配置后重试" };
   }
 
+  // 质检门禁:知识一致性(证据术语覆盖)+ 广告法黑名单 + 结构。不过线 → 拦截。
+  const evidenceChunks = recalled.map((r) => r.content);
+  const gate = computeQualityGate(raw.trim(), evidenceChunks);
+  const status = gate.verdict === "pass" ? "draft" : "rejected";
+
   const [article] = await db
     .insert(cfArticles)
     .values({
       title: next.title,
       contentMd: raw.trim(),
-      status: "draft",
+      status,
       source: "native",
+      aiScore: gate.total,
     })
     .returning();
   await db.update(cfTitles).set({ used: 1 }).where(eq(cfTitles.id, next.id));
 
   revalidatePath("/content-factory");
+  const gateLine =
+    gate.verdict === "pass"
+      ? `质检 ${gate.total}/100 通过`
+      : `质检 ${gate.total}/100 已拦截(${[
+          ...gate.adCompliance.issues,
+          ...gate.evidenceCoverage.issues,
+          ...gate.structure.issues,
+        ]
+          .slice(0, 2)
+          .join(";")})`;
   return {
     ok: true,
-    message: "生成完成,已入草稿池",
+    message: `${status === "draft" ? "生成完成,已入草稿池" : "生成完成,但被质检拦截"} · ${gateLine}`,
     article: {
       id: article.id,
       title: next.title,
