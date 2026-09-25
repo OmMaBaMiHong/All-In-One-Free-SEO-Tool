@@ -201,6 +201,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: "AI visibility",
     items: [
       { href: "/ai-visibility", label: "AI visibility tracker", icon: Sparkles },
+      { href: "/content-factory", label: "Content factory", icon: Workflow, guided: true },
       { href: "/chats", label: "AI chat history", icon: Bot },
     ],
   },

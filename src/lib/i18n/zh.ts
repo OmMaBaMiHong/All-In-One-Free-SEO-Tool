@@ -68,6 +68,7 @@ export const ZH: Record<string, string> = {
   "Brand visibility": "品牌可见性",
   "Site compare": "站点对比",
   "AI visibility tracker": "AI 可见性追踪",
+  "Content factory": "内容工厂",
   "AI chat history": "AI 聊天历史",
   "Page monitor": "页面监控",
   Snapshots: "快照",
