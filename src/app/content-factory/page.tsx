@@ -3,7 +3,11 @@ export const dynamic = "force-dynamic";
 import { ExternalLink, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { getGeoFlowStatus } from "./actions";
+import { GenerationPanel, KnowledgeManager } from "./client";
 import { listKnowledgeBases } from "@/lib/knowledge/service";
+import { db } from "@/db/client";
+import { cfTitleLibraries, cfArticles } from "@/db/schema";
+import { desc, sql } from "drizzle-orm";
 
 /**
  * 内容工厂 — the C-end entry to the GEOFlow sidecar.
@@ -58,6 +62,18 @@ const STAGES: {
 export default async function ContentFactoryPage() {
   const status = await getGeoFlowStatus();
   const knowledgeBases = await listKnowledgeBases().catch(() => []);
+  const titleLibraries = await db
+    .select({
+      id: cfTitleLibraries.id,
+      name: cfTitleLibraries.name,
+      available: sql<number>`(select count(*) from cf_titles where cf_titles.library_id = cf_title_libraries.id and cf_titles.used = 0)`.mapWith(Number),
+    })
+    .from(cfTitleLibraries);
+  const articles = await db
+    .select({ id: cfArticles.id, title: cfArticles.title, status: cfArticles.status, source: cfArticles.source })
+    .from(cfArticles)
+    .orderBy(desc(cfArticles.id))
+    .limit(10);
   const totalChunks = knowledgeBases.reduce((s, kb) => s + kb.chunkCount, 0);
 
   return (
@@ -130,6 +146,32 @@ export default async function ContentFactoryPage() {
         <p className="mt-3 text-xs text-muted-foreground">
           两台引擎共用此库:GEO 改写的证据召回、SEO 品牌事实与产品术语都从这里取。
         </p>
+        <div className="mt-4">
+          <KnowledgeManager kbs={knowledgeBases} />
+        </div>
+      </section>
+
+      {/* 内容生成 */}
+      <section className="space-y-3">
+        <h2 className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          内容生成(标题库 × 知识召回 × DeepSeek)
+        </h2>
+        <GenerationPanel titleLibraries={titleLibraries} />
+        {articles.length > 0 && (
+          <div className="rounded-2xl border border-white/5 bg-card/40 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">草稿池</p>
+            <ul className="mt-2 space-y-1">
+              {articles.map((a) => (
+                <li key={a.id} className="text-sm">
+                  #{a.id} {a.title}
+                  <span className="ml-2 text-[10px] text-muted-foreground">
+                    {a.status} · {a.source}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
 
       {/* 六环操作地图 */}
