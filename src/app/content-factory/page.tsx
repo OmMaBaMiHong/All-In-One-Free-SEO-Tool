@@ -81,10 +81,12 @@ export default async function ContentFactoryPage() {
               {status.reachable ? (
                 <span className="text-emerald-300">运行中{status.latencyMs != null && ` · ${status.latencyMs}ms`}</span>
               ) : (
-                <span className="text-rose-300">不可达</span>
+                <span className="text-amber-300">已退役(原生重写中)</span>
               )}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">{status.baseUrl}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              原 GEOFlow 实例 {status.baseUrl} · 153 条数据(知识库/标题/关键词/文章/提示词)已迁入本系统
+            </p>
           </div>
           <a
             href={`${status.baseUrl}/geo_admin/dashboard`}
@@ -97,7 +99,7 @@ export default async function ContentFactoryPage() {
         </div>
         {!status.reachable && (
           <p className="mt-2 text-xs text-muted-foreground">
-            启动方式:在 GEOFlow 目录执行 <code>docker compose up -d</code>。
+            原容器已按决策停用(数据卷保留)。原生 TS 版知识库/生成/门禁/分发模块在本系统内开发中。
           </p>
         )}
       </section>
