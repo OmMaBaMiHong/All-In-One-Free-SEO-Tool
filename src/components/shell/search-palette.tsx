@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/i18n/zh";
 
 import {
   useCallback,
@@ -169,7 +170,7 @@ export function SearchPalette() {
       >
         <Search className="size-4 transition-colors group-hover:text-cyan-300" />
         <span className="flex-1 text-left transition-colors group-hover:text-foreground">
-          Search clients, keywords, tasks…
+          {t("Search clients, keywords, tasks…")}
         </span>
         {/* Visually prominent so users notice the shortcut. The cyan
             ring + foreground text contrast makes it scan as an

@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/i18n/zh";
 
 /**
  * First-run prompt. Shown ONCE per browser the first time the user
@@ -139,10 +140,10 @@ export function FirstRunPrompt() {
           </div>
           <div className="flex-1 space-y-1">
             <h2 className="text-[15px] font-semibold text-foreground">
-              Make SEO Tool feel like a real app
+              {t("Make SEO Tool feel like a real app")}
             </h2>
             <p className="text-[13px] text-muted-foreground">
-              One click each. You can change this any time in{" "}
+              {t("One click each. You can change this any time in")}{" "}
               <Link
                 href="/settings/install"
                 className="text-violet-300 hover:underline"
@@ -167,10 +168,10 @@ export function FirstRunPrompt() {
           <Row
             icon={AppWindow}
             iconColor="text-violet-300"
-            title="Install as app (PWA)"
+            title={t("Install as app (PWA)")}
             desc="Own window, no browser chrome. Adds to Start Menu / Applications. Right-click → Pin to taskbar."
             done={pwaDone}
-            ctaLabel={pwaPrompt ? "Install" : "Not available"}
+            ctaLabel={pwaPrompt ? t("安装") : t("不可用")}
             disabled={!pwaPrompt || pwaDone}
             onClick={installPwa}
           />
@@ -195,7 +196,7 @@ export function FirstRunPrompt() {
             onClick={() => dismiss(true)}
             className="text-[12px] text-muted-foreground hover:text-foreground"
           >
-            Skip — I&apos;ll do this later
+            {t("Skip — I'll do this later")}
           </button>
           <button
             type="button"

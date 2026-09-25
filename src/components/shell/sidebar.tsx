@@ -506,10 +506,10 @@ export function Sidebar({
             <>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-medium leading-none text-sidebar-foreground">
-                  Local user
+                  {t("Local user")}
                 </div>
                 <div className="mt-1 truncate text-xs text-sidebar-foreground/60">
-                  Single-user mode
+                  {t("Single-user mode")}
                 </div>
               </div>
               <ChevronRight className="size-4 text-sidebar-foreground/40" />
@@ -541,7 +541,7 @@ export function Sidebar({
                 ) : (
                   <PanelLeftClose className="size-3.5" />
                 )}
-                <span>{uiMode === "guided" ? "Show all tools" : "Guided mode"}</span>
+                <span>{uiMode === "guided" ? t("Show all tools") : t("Guided mode")}</span>
               </span>
               <span className="rounded bg-sidebar-accent/60 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-sidebar-foreground/80">
                 {uiMode === "guided" ? "Pro" : "Easy"}
@@ -556,7 +556,7 @@ export function Sidebar({
           }`}
         >
           <span className="size-1.5 rounded-full bg-emerald-400" />
-          {!collapsed && <span>Local · everything on this machine</span>}
+          {!collapsed && <span>{t("Local · everything on this machine")}</span>}
         </div>
       </div>
     </aside>

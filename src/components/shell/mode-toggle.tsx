@@ -1,4 +1,5 @@
 "use client";
+import { t } from "@/lib/i18n/zh";
 
 import { useTransition } from "react";
 import { GraduationCap, Zap } from "lucide-react";
@@ -18,10 +19,10 @@ export function ModeToggle({ mode }: { mode: "guided" | "pro" }) {
             ? "inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-1 text-[11px] font-medium text-emerald-300 ring-1 ring-inset ring-emerald-500/30"
             : "inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-white/5 hover:text-foreground"
         }
-        title="Guided mode — explanations and beginner cues"
+        title={t("引导模式——有讲解和新手提示")}
       >
         <GraduationCap className="size-3" />
-        Guided
+        {t("引导")}
       </button>
       <button
         type="button"
@@ -32,10 +33,10 @@ export function ModeToggle({ mode }: { mode: "guided" | "pro" }) {
             ? "inline-flex items-center gap-1 rounded-md bg-violet-500/15 px-2 py-1 text-[11px] font-medium text-violet-300 ring-1 ring-inset ring-violet-500/30"
             : "inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-white/5 hover:text-foreground"
         }
-        title="Pro mode — dense data, no hand-holding"
+        title={t("专业模式——信息密集,无新手提示")}
       >
         <Zap className="size-3" />
-        Pro
+        {t("专业")}
       </button>
     </div>
   );

@@ -168,7 +168,7 @@ export function ClientToolHeader({
           href={basePath}
           className="text-xs text-muted-foreground hover:text-foreground"
         >
-          ← All clients
+          ← 返回客户列表
         </Link>
         <span className="hidden text-muted-foreground/40 sm:inline">·</span>
         {Icon && <Icon className="size-4 shrink-0 text-violet-300" />}

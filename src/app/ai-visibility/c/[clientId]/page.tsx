@@ -160,7 +160,7 @@ export default async function PerClientAIVisibilityPage({
                 href={`/tools/geo-swot/c/${client.id}`}
                 className="inline-flex h-9 items-center gap-1.5 rounded-md border border-rose-500/30 bg-rose-500/10 px-3 text-xs font-medium text-rose-300 hover:bg-rose-500/20"
               >
-                Generate GEO SWOT →
+                {t("生成 GEO 态势分析 →")}
               </a>
             )}
           </div>
@@ -168,7 +168,7 @@ export default async function PerClientAIVisibilityPage({
         meta={
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-fuchsia-500/10 px-2.5 py-1 text-fuchsia-300 ring-1 ring-inset ring-fuchsia-500/20">
-              {configured.length}/{PROVIDER_CATALOG.length} providers configured
+              {configured.length}/{PROVIDER_CATALOG.length} 个引擎已配置
             </span>
             {totalMentions > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-300 ring-1 ring-inset ring-emerald-500/30">
@@ -197,7 +197,7 @@ export default async function PerClientAIVisibilityPage({
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                Mention rate · live answers
+                {t("提及率 · 联网回答")}
               </div>
               <div className="mt-1 flex items-baseline gap-2">
                 <span className="text-2xl font-semibold">
@@ -221,8 +221,8 @@ export default async function PerClientAIVisibilityPage({
                 )}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                {summary.live.mentions}/{summary.live.checks} answers ·{" "}
-                {summary.memory.checks} memory answers excluded
+                {summary.live.mentions}/{summary.live.checks} 条回答 ·{" "}
+                {summary.memory.checks} 条纯记忆回答已排除
                 {summary.memory.mentions > 0 &&
                   ` (${summary.memory.mentions} mention them)`}
               </div>
@@ -238,7 +238,7 @@ export default async function PerClientAIVisibilityPage({
             </div>
             <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                Citation share
+                {t("引用份额")}
               </div>
               <div className="mt-1 text-2xl font-semibold">
                 {summary.live.citationShare === null
@@ -246,31 +246,31 @@ export default async function PerClientAIVisibilityPage({
                   : `${Math.round(summary.live.citationShare * 100)}%`}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                client URLs ÷ all URLs cited · rate{" "}
+                我们被引 URL 占比 · 引用率{" "}
                 {formatShare(summary.live.citationRate)}
               </div>
             </div>
             <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                Branded queries
+                {t("品牌词提问")}
               </div>
               <div className="mt-1 text-2xl font-semibold">
                 {formatShare(summary.branded.mentionRate)}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                do AIs know the name? · {summary.branded.checks} checks
+                AI 知道我们吗?· {summary.branded.checks} 次检测
               </div>
             </div>
             <div className="rounded-xl bg-white/[0.03] p-4 ring-1 ring-inset ring-white/5">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                Non-branded queries
+                {t("非品牌词提问")}
               </div>
               <div className="mt-1 text-2xl font-semibold">
                 {formatShare(summary.nonBranded.mentionRate)}
               </div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                do AIs recommend us unprompted? ·{" "}
-                {summary.nonBranded.checks} checks
+                AI 会主动推荐我们吗?·{" "}
+                {summary.nonBranded.checks} 次检测
               </div>
             </div>
           </div>
@@ -309,7 +309,7 @@ export default async function PerClientAIVisibilityPage({
             )}
             {summary.failed > 0 && (
               <span className="text-muted-foreground/70">
-                {summary.failed} failed checks excluded
+                {summary.failed} 条失败检测已排除
               </span>
             )}
           </div>
@@ -425,7 +425,7 @@ export default async function PerClientAIVisibilityPage({
                     </td>
                     <td className="px-3 py-3 text-xs">
                       {latest.length === 0 ? (
-                        <span className="text-muted-foreground">No checks yet</span>
+                        <span className="text-muted-foreground">{t("尚未检测")}</span>
                       ) : (
                         <div className="flex flex-wrap gap-1">
                           {latest.map((c) => (
