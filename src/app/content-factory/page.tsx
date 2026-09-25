@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { ExternalLink, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { getGeoFlowStatus } from "./actions";
-import { GenerationPanel, KnowledgeManager } from "./client";
+import { GenerationPanel, KnowledgeManager, PublishButton } from "./client";
 import { listKnowledgeBases } from "@/lib/knowledge/service";
 import { db } from "@/db/client";
 import { cfTitleLibraries, cfArticles } from "@/db/schema";
@@ -162,14 +162,14 @@ export default async function ContentFactoryPage() {
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">草稿池</p>
             <ul className="mt-2 space-y-1">
               {articles.map((a) => (
-                <li key={a.id} className="text-sm">
+                <li key={a.id} className="flex flex-wrap items-center gap-2 text-sm">
                   #{a.id} {a.title}
-                  <span className="ml-2 text-[10px] text-muted-foreground">
+                  <span className="text-[10px] text-muted-foreground">
                     {a.status} · {a.source}
                   </span>
                   {a.aiScore !== null && (
                     <span
-                      className={`ml-2 inline-flex rounded-full px-1.5 py-0.5 text-[10px] ring-1 ring-inset ${
+                      className={`inline-flex rounded-full px-1.5 py-0.5 text-[10px] ring-1 ring-inset ${
                         a.status === "rejected"
                           ? "bg-rose-500/10 text-rose-300 ring-rose-500/30"
                           : "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30"
@@ -177,6 +177,18 @@ export default async function ContentFactoryPage() {
                     >
                       质检 {Math.round(a.aiScore)}/100
                     </span>
+                  )}
+                  {a.status === "published" ? (
+                    <a
+                      href={`https://skoob.cc/blog/${a.id}.html`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-violet-300 hover:underline"
+                    >
+                      已发布 ↗
+                    </a>
+                  ) : (
+                    <PublishButton articleId={a.id} />
                   )}
                 </li>
               ))}

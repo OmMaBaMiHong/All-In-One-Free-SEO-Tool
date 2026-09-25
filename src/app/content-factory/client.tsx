@@ -6,6 +6,7 @@ import {
   ingestKnowledgeAction,
   deleteKnowledgeBaseAction,
   generateArticleAction,
+  publishArticleAction,
 } from "./actions";
 
 const inputCls =
@@ -104,6 +105,38 @@ export function GenerationPanel({
           {state.message}
           {state.article && ` ·《${state.article.title}》约 ${state.article.words} 字 · 召回 ${state.article.recalled} 条证据`}
         </div>
+      )}
+    </form>
+  );
+}
+
+
+export function PublishButton({ articleId }: { articleId: number }) {
+  const [state, action, pending] = useActionState(publishArticleAction, null);
+  if (state?.ok && state.url) {
+    return (
+      <a
+        href={state.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300 ring-1 ring-inset ring-emerald-500/30"
+      >
+        已发布 ↗
+      </a>
+    );
+  }
+  return (
+    <form action={action} className="inline">
+      <input type="hidden" name="articleId" value={articleId} />
+      <button
+        type="submit"
+        disabled={pending}
+        className="inline-flex rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] text-violet-300 hover:bg-violet-500/20 disabled:opacity-50"
+      >
+        {pending ? "发布中…" : "发布"}
+      </button>
+      {state && !state.ok && (
+        <span className="ml-1 text-[10px] text-rose-300">{state.message}</span>
       )}
     </form>
   );

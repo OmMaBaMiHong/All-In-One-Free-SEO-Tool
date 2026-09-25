@@ -79,6 +79,7 @@ export async function deleteKnowledgeBaseAction(
 import {
   cfArticles,
   cfTitles,
+  workspaceSettings,
 } from "@/db/schema";
 import {
   buildGenerationMessages,
@@ -165,4 +166,91 @@ export async function generateArticleAction(
       recalled: recalled.length,
     },
   };
+}
+
+
+// ── 发布:草稿 → skoob.cc 真实页面 + 百度推送 ─────────────────────────
+import { execFile } from "node:child_process";
+import { writeFile, readFile, unlink } from "node:fs/promises";
+import os from "node:os";
+import { join } from "node:path";
+import {
+  renderArticleHtml,
+  blogUrl,
+  baiduPush,
+} from "@/lib/knowledge/publish";
+
+const PROD_HOST = process.env.SKOOB_PROD_HOST ?? "root@47.98.107.56";
+
+function sshRun(args: string[]): Promise<string> {
+  return new Promise((ok, fail) => {
+    execFile("ssh", ["-o", "BatchMode=yes", PROD_HOST, ...args], { timeout: 60_000 }, (err, stdout) => {
+      if (err) fail(err);
+      else ok(stdout);
+    });
+  });
+}
+
+export async function publishArticleAction(
+  _prev: { ok: boolean; message: string; url?: string } | null,
+  formData: FormData,
+): Promise<{ ok: boolean; message: string; url?: string }> {
+  const id = Number(formData.get("articleId"));
+  if (!Number.isFinite(id)) return { ok: false, message: "参数错误" };
+  const [article] = await db.select().from(cfArticles).where(eq(cfArticles.id, id)).limit(1);
+  if (!article) return { ok: false, message: "文章不存在" };
+  if (article.status === "rejected") return { ok: false, message: "质检未通过的文章不能发布(先重新生成)" };
+
+  // 1. 渲染 + 本地临时文件
+  const rendered = renderArticleHtml({
+    id: article.id,
+    title: article.title,
+    contentMd: article.contentMd,
+  });
+  const tmp = join(os.tmpdir(), `cf-${article.id}.html`);
+  await writeFile(tmp, rendered.html);
+
+  // 2. 上传到生产补丁目录(未来的补丁发布会保留它)并 docker cp 进容器
+  try {
+    // 目标子目录(blog/)可能不存在——先建再传
+    await sshRun(["mkdir -p /root/patch-web/dist/" + (rendered.path.includes("/") ? rendered.path.split("/").slice(0, -1).join("/") : ".")]);
+    await new Promise((ok, fail) =>
+      execFile("scp", ["-o", "BatchMode=yes", tmp, `${PROD_HOST}:/root/patch-web/dist/${rendered.path}`], { timeout: 60_000 }, (e) => (e ? fail(e) : ok(null as never))),
+    );
+    await sshRun([
+      "docker exec skoob-prod-nginx-1 mkdir -p /usr/share/nginx/html/web/blog" +
+        " && docker cp /root/patch-web/dist/" +
+        rendered.path +
+        " skoob-prod-nginx-1:/usr/share/nginx/html/web/" +
+        rendered.path,
+    ]);
+  } catch (err) {
+    return { ok: false, message: `上传失败: ${(err as Error).message}` };
+  } finally {
+    await unlink(tmp).catch(() => {});
+  }
+
+  // 3. 更新 cf 状态与发布 URL
+  await db
+    .update(cfArticles)
+    .set({ status: "published" })
+    .where(eq(cfArticles.id, id));
+
+  // 4. 百度推送(需要 token;没有则跳过,不影响发布)
+  let pushNote = "";
+  const [pushToken] = await db
+    .select()
+    .from(workspaceSettings)
+    .where(eq(workspaceSettings.key, "baidu.push_token"))
+    .limit(1);
+  if (pushToken?.value) {
+    const token = String(pushToken.value).replace(/^"|"$/g, "");
+    const push = await baiduPush([rendered.url], token);
+    pushNote = push.ok ? ` · 百度推送成功(${push.detail})` : ` · 百度推送未成功(${push.detail})`;
+  } else {
+    pushNote = " · 未配置百度推送 token,跳过推送";
+  }
+
+  revalidatePath("/content-factory");
+  return { ok: true, message: `已发布 ${rendered.url}${pushNote}`, url: rendered.url };
 }
