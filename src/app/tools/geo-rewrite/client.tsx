@@ -82,6 +82,11 @@ export function GeoRewriteClient() {
               </span>
             </div>
             <p className="text-sm">{state.note}</p>
+            {typeof state.recalledCount === "number" && state.recalledCount > 0 && (
+              <p className="text-xs text-muted-foreground">
+                统一知识库召回 {state.recalledCount} 条证据注入改写上下文
+              </p>
+            )}
             <div className="grid gap-3 sm:grid-cols-2">
               {(
                 [

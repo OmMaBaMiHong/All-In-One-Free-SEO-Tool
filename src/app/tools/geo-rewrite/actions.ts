@@ -9,12 +9,14 @@ import {
 } from "@/lib/geo-metrics/rewrite-instructions";
 import { geuCheck, type GeuVerdict } from "@/lib/geo-metrics/geu";
 import { parseHtmlToMarkdown } from "@/lib/main-content-extractor";
+import { recallKnowledge } from "@/lib/knowledge/service";
 
 export type GeoRewriteState =
   | {
       ok: true;
       url: string;
       market: Market;
+      recalledCount?: number;
       audit: {
         cn: { total: number; geoScore: number; seoScore: number };
         global: { total: number; geoScore: number; seoScore: number };
@@ -103,14 +105,25 @@ export async function runGeoRewrite(
     };
   }
 
+  // ── 知识召回:统一知识库同时服务 GEO 生成(融合点) ───────────────────
+  const topic = `${url} ${instructions.instructions.slice(0, 3).map((i) => i.geoMethod).join(" ")}`;
+  const recalled = await recallKnowledge(topic, 5).catch(() => []);
+  const knowledgeBlock =
+    recalled.length > 0
+      ? `\n\n# Unified knowledge base evidence (verified facts — prefer these over guesses)\n\n${recalled
+          .map((r) => `- [${r.kbName}] ${r.content.slice(0, 400)}`)
+          .join("\n")}`
+      : "";
+
   // ── 改:LLM 按指令包重写(事实契约在提示词里,验在下一步) ──────────
   const rewrite = await callAI({
-    system: `You are a GEO content rewriter. You receive a page (markdown) and a compiled
-instruction package. Apply EVERY content instruction; respect every constraint, including the
-anti-AI-flavor clause. Infrastructure items are NOT yours — skip them (the site team handles
-robots/llms/schema deployment). Return ONLY the rewritten page in markdown, same language as the
-original, same approximate length.`,
-    user: `# Instruction package\n\n${instructions.markdown}\n\n# Original page (markdown)\n\n${pageMarkdown.slice(0, 12_000)}\n\nReturn ONLY the rewritten markdown.`,
+    system: `You are a GEO content rewriter. You receive a page (markdown), a compiled
+instruction package, and optionally knowledge-base evidence. Apply EVERY content instruction; respect every
+constraint, including the anti-AI-flavor clause. When knowledge-base evidence is provided, treat it as
+verified facts and prefer it over anything else — do not contradict it. Infrastructure items are NOT
+yours — skip them. Return ONLY the rewritten page in markdown, same language as the original, same
+approximate length.`,
+    user: `# Instruction package\n\n${instructions.markdown}${knowledgeBlock}\n\n# Original page (markdown)\n\n${pageMarkdown.slice(0, 12_000)}\n\nReturn ONLY the rewritten markdown.`,
     maxTokens: 8000,
     temperature: 0.3,
     timeoutMs: 180_000,

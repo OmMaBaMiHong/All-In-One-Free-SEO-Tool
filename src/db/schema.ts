@@ -2561,3 +2561,80 @@ export const gbpReviews = sqliteTable(
   ],
 );
 export type GbpReviewRow = typeof gbpReviews.$inferSelect;
+
+
+// ── 内容工厂(统一知识库 + 生产)────────────────────────────────
+// 数据 2026-09-25 从 GEOFlow PG 迁入(0074)。这套表是 SEO 与 GEO
+// 共用的知识中枢:生成文章用它当证据,SEO 改写指令/品牌事实从同一
+// 库召回。向量化是 V2;V1 用关键词召回。
+
+export const cfKnowledgeBases = sqliteTable("cf_knowledge_bases", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  description: text("description").notNull().default(""),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export const cfKnowledgeChunks = sqliteTable("cf_knowledge_chunks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  kbId: integer("kb_id")
+    .notNull()
+    .references(() => cfKnowledgeBases.id, { onDelete: "cascade" }),
+  chunkIndex: integer("chunk_index").notNull().default(0),
+  content: text("content").notNull(),
+  importedFrom: text("imported_from").notNull().default(""),
+});
+
+export const cfTitleLibraries = sqliteTable("cf_title_libraries", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+});
+
+export const cfTitles = sqliteTable("cf_titles", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  libraryId: integer("library_id")
+    .notNull()
+    .references(() => cfTitleLibraries.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  used: integer("used").notNull().default(0),
+});
+
+export const cfKeywordLibraries = sqliteTable("cf_keyword_libraries", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+});
+
+export const cfLibKeywords = sqliteTable("cf_lib_keywords", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  libraryId: integer("library_id")
+    .notNull()
+    .references(() => cfKeywordLibraries.id, { onDelete: "cascade" }),
+  keyword: text("keyword").notNull(),
+});
+
+export const cfPrompts = sqliteTable("cf_prompts", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  kind: text("kind").notNull().default("body"),
+  content: text("content").notNull(),
+  variables: text("variables").notNull().default(""),
+});
+
+export const cfArticles = sqliteTable("cf_articles", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  contentMd: text("content_md").notNull(),
+  status: text("status").notNull().default("draft"),
+  source: text("source").notNull().default("native"),
+  aiScore: real("ai_score"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+export const cfAuthors = sqliteTable("cf_authors", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+});

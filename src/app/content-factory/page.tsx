@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { ExternalLink, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/shell/page-header";
 import { getGeoFlowStatus } from "./actions";
+import { listKnowledgeBases } from "@/lib/knowledge/service";
 
 /**
  * 内容工厂 — the C-end entry to the GEOFlow sidecar.
@@ -56,6 +57,8 @@ const STAGES: {
 
 export default async function ContentFactoryPage() {
   const status = await getGeoFlowStatus();
+  const knowledgeBases = await listKnowledgeBases().catch(() => []);
+  const totalChunks = knowledgeBases.reduce((s, kb) => s + kb.chunkCount, 0);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -102,6 +105,31 @@ export default async function ContentFactoryPage() {
             原容器已按决策停用(数据卷保留)。原生 TS 版知识库/生成/门禁/分发模块在本系统内开发中。
           </p>
         )}
+      </section>
+
+      {/* 统一知识库实况 */}
+      <section className="rounded-2xl border border-white/5 bg-card/40 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            统一知识库(SEO 与 GEO 共用)
+          </h2>
+          <span className="text-xs text-muted-foreground">
+            {knowledgeBases.length} 个知识库 · {totalChunks} 个切片
+          </span>
+        </div>
+        <div className="mt-3 grid gap-2 md:grid-cols-3">
+          {knowledgeBases.map((kb) => (
+            <div key={kb.id} className="rounded-xl bg-white/[0.03] p-3 ring-1 ring-inset ring-white/5">
+              <p className="text-sm font-medium">{kb.name}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {kb.chunkCount} 个切片 · {kb.description.slice(0, 30) || "官方文档"}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          两台引擎共用此库:GEO 改写的证据召回、SEO 品牌事实与产品术语都从这里取。
+        </p>
       </section>
 
       {/* 六环操作地图 */}
