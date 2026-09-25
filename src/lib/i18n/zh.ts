@@ -15,6 +15,37 @@
  */
 
 export const ZH: Record<string, string> = {
+  "Essentials": "核心",
+  "Everyday": "日常",
+  "Content": "内容",
+  "Imports": "导入",
+  "Deliverables": "交付物",
+  "Account": "账户",
+  "Dashboard": "仪表板",
+  "Clients": "客户",
+  "Audits": "审计",
+  "Tasks": "任务",
+  "Reports": "报告",
+  "Leads": "线索",
+  "Autopilot": "自动驾驶",
+  "Capacity": "用量",
+  "Cannibalization": "关键词蚕食",
+  "Backlinks": "外链",
+  "Outreach": "外联",
+  "Citations": "目录引用",
+  "Competitors": "竞争对手",
+  "Snapshots": "快照",
+  "Automations": "自动化",
+  "Proposals": "方案书",
+  "Invoices": "发票",
+  "Settings": "设置",
+  "Docs": "文档",
+  "Learn": "学习",
+  "Notifications": "通知",
+  "Guided": "引导",
+  "Pro": "专业",
+  "Ready": "就绪",
+  "EASY": "简单",
   "Keywords & ranks": "关键词与排名",
   "Paid ads": "付费广告",
   "Backlinks & outreach": "外链与外联",
@@ -195,10 +226,21 @@ export const ZH: Record<string, string> = {
   "Multi-touch attribution (UTM)": "多触点归因(UTM)",
   "Where do I rank? (country-aware) ⭐": "我的排名(分国家)⭐",
   "WordPress hack / malware scan ⭐": "WordPress 挂马扫描 ⭐",
-
 };
 
-/** Translate an English UI string to Chinese; missing keys fall back to EN. */
+/**
+ * 界面语言:SSR 恒为 zh(中文优先);浏览器端读 localStorage 偏好。
+ * 切换由 LocaleToggle 写 localStorage 后整页刷新完成。
+ */
+let LOCALE: "zh" | "en" = "zh";
+if (typeof window !== "undefined") {
+  const saved = window.localStorage.getItem("ui.locale");
+  if (saved === "en") LOCALE = "en";
+}
+
+/** Translate an English UI string; falls back to ENGLISH text when the
+ * locale is en or the key is missing. */
 export function t(en: string): string {
+  if (LOCALE === "en") return en;
   return ZH[en] ?? en;
 }
