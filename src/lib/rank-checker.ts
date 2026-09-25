@@ -31,7 +31,7 @@ const MOBILE_VIEWPORT = { width: 412, height: 915 };
 const DESKTOP_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
-function normalizeDomain(input: string): string {
+export function normalizeDomain(input: string): string {
   return input
     .replace(/^https?:\/\//i, "")
     .replace(/^www\./i, "")
@@ -39,7 +39,7 @@ function normalizeDomain(input: string): string {
     .toLowerCase();
 }
 
-function urlMatches(href: string, domain: string): boolean {
+export function urlMatches(href: string, domain: string): boolean {
   try {
     const u = new URL(href);
     const host = u.hostname.replace(/^www\./i, "").toLowerCase();
