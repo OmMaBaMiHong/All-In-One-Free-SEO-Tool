@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n/zh";
 /**
  * Workspace-state-aware "what to do next" pill. Lives in the topbar so it
  * follows the user across every page. Server-rendered: reads minimal
@@ -146,7 +147,7 @@ async function pickNextStep(): Promise<Step | null> {
     const s = await maybe({
       id: "report",
       href: "/reports",
-      label: "Generate your first report",
+      label: t("生成你的第一份报告"),
       detail: "PDF, white-labeled, AI summary",
     });
     if (s) return s;

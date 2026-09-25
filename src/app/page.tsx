@@ -1,4 +1,5 @@
 import { db } from "@/db/client";
+import { t } from "@/lib/i18n/zh";
 import { audits, clients, tasks } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
@@ -47,10 +48,10 @@ const priorityVariant: Record<
 };
 
 function greetingForHour(hour: number) {
-  if (hour < 5) return "Working late";
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
+  if (hour < 5) return t("夜深了,还在工作");
+  if (hour < 12) return t("早上好");
+  if (hour < 18) return t("下午好");
+  return t("晚上好");
 }
 
 export default async function DashboardPage() {
@@ -179,7 +180,7 @@ export default async function DashboardPage() {
           <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground">
             {isFresh
               ? "Welcome. Let's set up your first 5 minutes."
-              : `${greeting}, here's what needs attention today.`}
+              : `${greeting}, 以下是需要关注的事项。`}
           </h1>
           <p className="max-w-2xl text-sm text-muted-foreground">
             {isFresh
@@ -268,26 +269,26 @@ export default async function DashboardPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             className="animate-page-enter stagger-1"
-            label="Open tasks"
+            label={t("Open tasks")}
             value={openTaskCount}
             accent="violet"
             icon={ListChecks}
             hint={
-              openTaskCount > 0 ? "Sorted by priority below" : "All caught up"
+              openTaskCount > 0 ? t("已按优先级排序列于下方") : t("全部处理完毕")
             }
             spark={issueTimeline.length > 1 ? issueTimeline : undefined}
           />
           <StatCard
             className="animate-page-enter stagger-2"
-            label="Clients"
+            label={t("Clients")}
             value={clientCount}
             accent="cyan"
             icon={Users}
-            hint="Active"
+            hint={t("活跃")}
           />
           <StatCard
             className="animate-page-enter stagger-3"
-            label="Audits run"
+            label={t("Audits run")}
             value={auditCount}
             accent="amber"
             icon={ClipboardList}
@@ -296,13 +297,13 @@ export default async function DashboardPage() {
                 ? `Score ${latestScore} (${scoreDelta > 0 ? "+" : ""}${scoreDelta})`
                 : completedAudits.length > 0
                   ? `Latest ${latestScore}`
-                  : "Run your first"
+                  : t("先跑一次")
             }
             spark={scoreTimeline.length > 1 ? scoreTimeline : undefined}
           />
           <StatCard
             className="animate-page-enter stagger-4"
-            label="Latest score"
+            label={t("Latest score")}
             value={latestScore ?? "—"}
             accent="emerald"
             icon={Sparkles}
@@ -314,7 +315,7 @@ export default async function DashboardPage() {
             hint={
               completedAudits.length > 0
                 ? `${completedAudits.length} completed`
-                : "Run an audit first"
+                : t("先跑一次审计")
             }
             delta={
               scoreDelta !== null
