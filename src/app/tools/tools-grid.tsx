@@ -807,6 +807,14 @@ const tools = [
     accent: "violet",
   },
   {
+    href: "/tools/llms-generator",
+    icon: Sparkles,
+    title: "llms.txt 生成器 ⭐",
+    description:
+      "按 llmstxt.org 规范为任意站点生成 llms.txt(我们是谁/有什么/怎么用与价格/不做什么 + 主要页面链接)。AI 引擎按需读取;放域名根目录。",
+    accent: "violet",
+  },
+  {
     href: "/tools/faq-generator",
     icon: Sparkles,
     title: "FAQPage 生成器 ⭐",

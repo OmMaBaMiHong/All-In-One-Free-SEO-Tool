@@ -3,8 +3,8 @@
 // graph (see tool-capabilities.derive.ts) and by reading the tool copy out
 // of tools-grid.tsx. tool-capabilities.test.ts fails when this drifts.
 //
-// 228 routes · 103 need AI · 70 use a browser.
-// 93 are /tools/* · 36 need AI · 93 carry copy.
+// 229 routes · 104 need AI · 70 use a browser.
+// 94 are /tools/* · 37 need AI · 94 carry copy.
 
 export const TOOL_CAPABILITIES = [
   { route: "/", needsAI: true, aiUsage: "required", usesBrowser: true },
@@ -190,6 +190,7 @@ export const TOOL_CAPABILITIES = [
   { route: "/tools/link-checker", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Link analyzer", description: "Paste any URL → every <a> link classified internal/external + dofollow/nofollow, with anchor text frequency. Critical pre-publish check." },
   { route: "/tools/link-graph", needsAI: false, aiUsage: "none", usesBrowser: false, title: "Internal-link analyser", description: "Crawl + build link graph. Surfaces orphan pages and proposes top-3 source pages for each via TF-IDF cosine similarity. CSV / JSON export." },
   { route: "/tools/link-recommender", needsAI: true, aiUsage: "required", usesBrowser: false, title: "AI internal-link recommender", description: "Crawl your site + AI proposes 3-5 internal links with anchor + target + context snippet. Closes the gap on internal-linking opportunities humans miss." },
+  { route: "/tools/llms-generator", needsAI: true, aiUsage: "required", usesBrowser: false, title: "llms.txt 生成器 ⭐", description: "按 llmstxt.org 规范为任意站点生成 llms.txt(我们是谁/有什么/怎么用与价格/不做什么 + 主要页面链接)。AI 引擎按需读取;放域名根目录。" },
   { route: "/tools/llms-txt", needsAI: true, aiUsage: "partial", usesBrowser: false, title: "llms.txt manager", description: "Generate + validate llms.txt — the emerging standard for telling AI crawlers what your site is about." },
   { route: "/tools/local-cwv", needsAI: false, aiUsage: "none", usesBrowser: true, title: "Local Core Web Vitals (no PSI key)", description: "Measures LCP / FCP / CLS / TBT directly from PerformanceObserver. Lighthouse-equivalent 0-100 score, resource breakdown, top fixes by impact. No PageSpeed quota." },
   { route: "/tools/meta-tag-generator", needsAI: true, aiUsage: "required", usesBrowser: false, title: "Meta tag generator", description: "Generates 3 angle-varied title + meta description options for any page, with SERP preview + Open Graph tags. Copy-paste HTML ready." },
